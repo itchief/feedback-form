@@ -176,6 +176,7 @@
     // создаём экземпляр класса PHPMailer
     $mail = new PHPMailer;
   
+    $mail->CharSet = 'UTF-8';
     $mail->From      = 'email@mysite.ru';
     $mail->FromName  = 'Имя сайта';
     $mail->Subject   = 'Сообщение с формы обратной связи';
