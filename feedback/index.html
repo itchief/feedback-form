@@ -23,7 +23,7 @@
           <div class="panel-body">
 
             <!-- Форма обратной связи -->
-            <form id="feedbackForm" action="/feedback/process-feedback-form.php" enctype="multipart/form-data" novalidate>
+            <form id="feedbackForm" action="/feedback/process.php" enctype="multipart/form-data" novalidate>
               <div class="row">
                 <div class="col-sm-6">
                   <!-- Имя пользователя -->
@@ -66,6 +66,9 @@
               </div>
               <button name="send-message" type="submit" class="btn btn-primary pull-right">Отправить сообщение</button>
             </form>
+            <div class="alert alert-warning success-message hidden">
+              Форма успешно отправлена. Нажмите на <a href="#">ссылку</a>, чтобы отправить ещё одно сообщение.
+            </div>
           </div>
         </div>
       </div>
