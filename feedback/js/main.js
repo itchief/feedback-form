@@ -67,7 +67,7 @@ $(function () {
         } else {
             this.changeStateSubmit(true);
         }
-    }
+    };
 
     // метод, возвращающий результат проверки расширения файла допустимому
     ProcessForm.prototype.validateFileExtension = function (filename) {
@@ -246,8 +246,7 @@ $(function () {
                     });
 
                     // сбрасываем состояние всех input и textarea элементов
-                    var submitForm = document.getElementById(_this.idForm);
-                    $(submitForm).find('input,textarea').each(function () {
+                    submitForm.find('input,textarea').each(function () {
                         _this.changeStateInput(this, 'clear');
                     });
 
@@ -337,8 +336,10 @@ $(function () {
      validFileExtensions - допустимые расширения файлов (по умолчанию 'jpg','jpeg','bmp','gif','png')
      existenceCaptcha - наличие у формы капчи (по умолчанию true)
      hideForm - скрыть форму после отправки данных
+     agreeCheckbox - флажок о принятии пользовательского соглашения перед отправкой формы (по умолчанию true)
+
      */
-    var formFeedback = new ProcessForm({idForm: 'feedbackForm', maxSizeFile: 1000000000});
+    var formFeedback = new ProcessForm({idForm: 'feedbackForm', maxSizeFile: 524288});
     formFeedback.init();
 
     //var contactForm = new ProcessForm({ idForm: 'contactForm', existenceUploadsFile: false, existenceCaptcha: false });
