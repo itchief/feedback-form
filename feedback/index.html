@@ -16,7 +16,7 @@
 <div class="container">
     <div class="row">
         <div class="col-sm-6 col-sm-offset-3">
-            <div class="panel panel-info">
+            <div class="panel panel-success">
                 <div class="panel-heading">
                     <h2 class="h3 panel-title">Форма обратной связи</h2>
                 </div>
@@ -29,37 +29,39 @@
                             <div class="col-sm-6">
                                 <!-- Имя пользователя -->
                                 <div class="form-group has-feedback">
-                                    <label for="name" class="control-label">Имя*:</label>
-                                    <input id="name" type="text" name="name" data-name="Имя" class="form-control"
-                                           value="" placeholder="">
+                                    <label for="name" class="control-label">Имя</label>
+                                    <input id="name" type="text" name="name" class="form-control"
+                                           value="" placeholder="Имя" minlength="2" required="required">
                                     <span class="glyphicon form-control-feedback"></span>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <!-- Email пользователя -->
                                 <div class="form-group has-feedback">
-                                    <label for="email" class="control-label">Адрес email*:</label>
-                                    <input id="email" type="email" name="email" data-name="Адрес email"
+                                    <label for="email" class="control-label">Email-адрес</label>
+                                    <input id="email" type="email" name="email" required="required"
                                            class="form-control"
-                                           value="" placeholder="">
+                                           value="" placeholder="Email-адрес">
                                     <span class="glyphicon form-control-feedback"></span>
                                 </div>
                             </div>
                         </div>
+
                         <!-- Сообщение пользователя -->
                         <div class="form-group has-feedback">
-                            <label for="message" class="control-label">Введите сообщение*:</label>
-                            <textarea id="message" name="message" data-name="Сообщение" class="form-control"
-                                      rows="3" placeholder="Введите сообщение (не менее 20 символов)"></textarea>
+                            <label for="message" class="control-label">Сообщение (не менее 20 символов)</label>
+                            <textarea id="message" name="message" class="form-control"
+                                      rows="3" placeholder="Сообщение (не менее 20 символов)" minlength="20"
+                                      maxlength="500" required="required"></textarea>
                         </div>
                         <!-- Файлы, для прикрепления к форме -->
                         <div class="form-group">
-                            <p style="font-weight: 700;">Прикрепить к сообщению файлы (до <span
+                            <p style="font-weight: 700; margin-bottom: 0;">Прикрепить к сообщению файлы (до <span
                                     class="countFiles"></span>):</p>
+                            <p class="small success">jpg, jpeg, bmp, gif, png (до 512 Кбайт)</p>
                             <input type="file" name="attachment[]">
                             <p style="margin-top: 3px; margin-bottom: 3px; color: #ff0000;"></p>
                         </div>
-                        <hr style="margin-top: 3px; margin-bottom: 3px;">
 
                         <!-- Капча -->
                         <div class="captcha">
@@ -68,22 +70,26 @@
                             <div class="btn btn-default refresh-captcha"><i class="glyphicon glyphicon-refresh"></i>
                                 Обновить
                             </div>
-                            <div class="form-group has-feedback">
-                                <label for="captcha" class="control-label">Пожалуйста, введите проверочный код:</label>
-                                <input id="captcha" name="captcha" data-name="Код на изображении" type="text"
-                                       class="form-control captcha" value="" autocomplete="off">
+                            <div class="form-group has-feedback" style="margin-top: 10px;">
+                                <label for="captcha" class="control-label">Код, показанный на изображении</label>
+                                <input type="text" name="captcha" maxlength="6" required="required" id="captcha"
+                                       class="form-control captcha" placeholder="******" autocomplete="off" value="">
                                 <span class="glyphicon form-control-feedback"></span>
                             </div>
                         </div>
 
                         <div class="checkbox">
                             <label>
-                                <input type="checkbox" name="agree"> Я принимаю <a href="#">условия</a>
+                                <input type="checkbox" name="agree"> Нажимая кнопку, я принимаю условия
+                                <a href="#">Пользовательского соглашения</a> и даю своё согласие на обработку моих
+                                персональных данных, в соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О
+                                персональных
+                                данных».
                             </label>
                         </div>
 
-                        <button name="send-message" type="submit" class="btn btn-primary pull-right"
-                                disabled="disabled">Отправить сообщение
+                        <button type="submit" class="btn btn-success pull-right" disabled="disabled">Отправить
+                            сообщение
                         </button>
 
                         <div class="clearfix"></div>

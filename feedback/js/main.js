@@ -94,9 +94,9 @@ $(function () {
                 _this.changeStateInput(this, 'success');
             } else {
                 _this.changeStateInput(this, 'error');
-                $.jGrowl('Поле: "<strong>' + $(this).attr('data-name') + '</strong>"<br>' + this.validationMessage, {
+                $.jGrowl('Поле: "<strong>' + $(this).parent().find('label').text() + '</strong>"<br>' + this.validationMessage, {
                     theme: 'jgrowl-error',
-                    life: 5000
+                    life: 10000
                 });
                 validForm = false;
             }
@@ -211,7 +211,7 @@ $(function () {
                 var submitForm = $('#' + _this.idForm);
                 // если сервер вернул ответ success, то значит двнные отправлены
                 if (data.result === "success") {
-                    $.jGrowl('Форма успешно отправлена!', {theme: 'jgrowl-success', life: 5000});
+                    $.jGrowl('Форма успешно отправлена!', {theme: 'jgrowl-success', life: 10000});
                     document.getElementById(_this.idForm).reset();
 
                     submitForm.find('input,textarea').each(function () {
@@ -243,7 +243,7 @@ $(function () {
                     // если сервер вернул ответ error...
                     $.jGrowl('<strong>Ошибка!</strong><br>Форму не удалось отправить.', {
                         theme: 'jgrowl-warning',
-                        life: 5000
+                        life: 10000
                     });
 
                     // сбрасываем состояние всех input и textarea элементов
