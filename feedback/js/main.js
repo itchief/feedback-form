@@ -208,11 +208,12 @@ $(function () {
                 data = JSON.parse(data);
                 //устанавливаем элементу, содержащему текст ошибки, пустую строку
                 $('#' + _this.idForm + '.error').text('');
+                var submitForm = $('#' + _this.idForm);
                 // если сервер вернул ответ success, то значит двнные отправлены
                 if (data.result === "success") {
                     $.jGrowl('Форма успешно отправлена!', {theme: 'jgrowl-success', life: 5000});
                     document.getElementById(_this.idForm).reset();
-                    var submitForm = $('#' + _this.idForm);
+
                     submitForm.find('input,textarea').each(function () {
                         _this.changeStateInput(this, 'clear');
                     });
