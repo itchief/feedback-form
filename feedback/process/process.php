@@ -31,7 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] != 'POST') {
 
 // валидация формы
 
-if (isset($_POST['name'])) { // валидация поля name
+// валидация поля name
+if (isset($_POST['name'])) {
     $name = filter_var($_POST['name'], FILTER_SANITIZE_STRING); // защита от XSS
     if (!checkTextLength($name, 2, 30)) { // проверка на количество символов в тексте
         $data['name'] = 'Поле <b>Имя</b> содержит недопустимое количество символов';
@@ -42,9 +43,10 @@ if (isset($_POST['name'])) { // валидация поля name
     $data['result'] = 'error';
 }
 
-if (isset($_POST['email'])) { //валидация поля email
+//валидация поля email
+if (isset($_POST['email'])) {
     if (!filter_var($_POST['email'], FILTER_VALIDATE_EMAIL)) { // защита от XSS
-        $data['email'] = 'Поле <b>Email</b> введено неправильно';
+        $data['email'] = 'Поле <b>Email</b> имеет не корректный адрес';
         $data['result'] = 'error';
     } else {
         $email = $_POST['email'];
@@ -54,7 +56,8 @@ if (isset($_POST['email'])) { //валидация поля email
     $data['result'] = 'error';
 }
 
-if (isset($_POST['message'])) { //валидация поля message
+//валидация поля message
+if (isset($_POST['message'])) {
     $message = filter_var($_POST['message'], FILTER_SANITIZE_STRING); // защита от XSS
     if (!checkTextLength($message, 20, 500)) { // проверка на количество символов в тексте
         $data['message'] = 'Поле <b>Сообщение</b> содержит недопустимое количество символов';
@@ -65,7 +68,8 @@ if (isset($_POST['message'])) { //валидация поля message
     $data['result'] = 'error';
 }
 
-if (isset($_POST['captcha']) && isset($_SESSION['code'])) { //валидация капчи
+//валидация капчи
+if (isset($_POST['captcha']) && isset($_SESSION['code'])) {
     $captcha = filter_var($_POST['captcha'], FILTER_SANITIZE_STRING); // защита от XSS
     if ($_SESSION["code"] != $captcha) { // проверка капчи
         $data['captcha'] = 'Вы неправильно ввели код с картинки';
@@ -76,7 +80,8 @@ if (isset($_POST['captcha']) && isset($_SESSION['code'])) { //валидация
     $data['result'] = 'error';
 }
 
-if (isset($_FILES['attachment'])) { // валидация файлов
+// валидация файлов
+if (isset($_FILES['attachment'])) {
     // перебор массива $_FILES['attachment']
     foreach ($_FILES['attachment']['error'] as $key => $error) {
         // если файл был успешно загружен на сервер (ошибок не возникло), то...
@@ -128,7 +133,8 @@ if (isset($_FILES['attachment'])) { // валидация файлов
     }
 }
 
-// если ошибок не возникло, то...
+
+// отправка формы (данных на почту)
 if ($data['result'] == 'success') {
     // включить файл PHPMailerAutoload.php
     require_once('../phpmailer/PHPMailerAutoload.php');
@@ -217,4 +223,5 @@ if ($data['result'] == 'success') {
     }
 }
 
+// сообщаем результат клиенту
 echo json_encode($data);

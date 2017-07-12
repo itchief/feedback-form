@@ -27,6 +27,7 @@
                           novalidate>
                         <div class="row">
                             <div class="col-sm-6">
+
                                 <!-- Имя пользователя -->
                                 <div class="form-group has-feedback">
                                     <label for="name" class="control-label">Имя</label>
@@ -34,8 +35,10 @@
                                            value="" placeholder="Имя" minlength="2" required="required">
                                     <span class="glyphicon form-control-feedback"></span>
                                 </div>
+
                             </div>
                             <div class="col-sm-6">
+
                                 <!-- Email пользователя -->
                                 <div class="form-group has-feedback">
                                     <label for="email" class="control-label">Email-адрес</label>
@@ -44,6 +47,7 @@
                                            value="" placeholder="Email-адрес">
                                     <span class="glyphicon form-control-feedback"></span>
                                 </div>
+
                             </div>
                         </div>
 
@@ -54,6 +58,7 @@
                                       rows="3" placeholder="Сообщение (не менее 20 символов)" minlength="20"
                                       maxlength="500" required="required"></textarea>
                         </div>
+
                         <!-- Файлы, для прикрепления к форме -->
                         <div class="form-group">
                             <p style="font-weight: 700; margin-bottom: 0;">Прикрепить к сообщению файлы (до <span
@@ -78,6 +83,7 @@
                             </div>
                         </div>
 
+                        <!-- Пользовательское солашение -->
                         <div class="checkbox">
                             <label>
                                 <input type="checkbox" name="agree"> Нажимая кнопку, я принимаю условия
@@ -88,10 +94,12 @@
                             </label>
                         </div>
 
+                        <!-- Кнопка для отправки формы -->
                         <button type="submit" class="btn btn-success pull-right" disabled="disabled">Отправить
                             сообщение
                         </button>
 
+                        <!-- Индикация загрузки данных формы на сервер -->
                         <div class="clearfix"></div>
                         <div class="progress" style="display:none; margin-top: 20px;">
                             <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
@@ -101,18 +109,20 @@
                         </div>
                         <div class="clearfix"></div>
 
-
                     </form>
+
+                    <!-- Сообщение об успешной отправки формы -->
                     <div class="alert alert-warning success-message hidden">
                         Форма успешно отправлена. Нажмите на <a href="#">ссылку</a>, чтобы отправить ещё одно сообщение.
                     </div>
+
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<script src="/feedback/vendors/jquery/jquery-3.1.1.min.js"></script>
+<script src="/feedback/vendors/jquery/jquery-3.2.1.min.js"></script>
 <script src="/feedback/vendors/bootstrap/js/bootstrap.min.js"></script>
 <script src="/feedback/vendors/jgrowl/jquery.jgrowl.min.js"></script>
 <script src="/feedback/js/main.js"></script>

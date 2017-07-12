@@ -15,10 +15,12 @@
             </tr>
             <tr>
                 <td bgcolor="#fff" style="padding: 15px;">
+
                     <p>Здравствуйте <b>%email.nameuser%</b>, ваше сообщение доставлено.</p>
                     <p>На данное письмо отвечать не надо.</p>p>
                     <hr>
                     Дата отправки: <b>%email.date%</b>
+
                 </td>
             </tr>
             <tr>

@@ -15,6 +15,7 @@
             </tr>
             <tr>
                 <td bgcolor="#fff" style="padding: 15px;">
+                
                     Пользователь <b>%email.nameuser%</b> оставил следующее сообщение:<br>
                     %email.message%
                     <hr>
@@ -23,6 +24,7 @@
                     <hr>
                     Email пользователя: <b>%email.emailuser%</b><br>
                     Дата отправки: <b>%email.date%</b>
+                    
                 </td>
             </tr>
             <tr>
