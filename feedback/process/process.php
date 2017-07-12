@@ -76,7 +76,7 @@ if (isset($_POST['captcha']) && isset($_SESSION['code'])) {
         $data['result'] = 'error';
     }
 } else {
-    $data['captcha'] = 'Произошла ошибка при проверки проверочного кода';
+    $data['captcha'] = 'Произошла ошибка при проверке проверочного кода';
     $data['result'] = 'error';
 }
 
