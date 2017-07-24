@@ -45,9 +45,9 @@ $(function () {
             }
 
             if (this.hideForm) {
-                $(submitForm).parent().find('.success-message').click(function (e) {
+                $(submitForm).parent().find('.show-form').click(function (e) {
                     e.preventDefault();
-                    $(this).addClass('hidden');
+                    $(this).closest('.success-message').addClass('hidden');
                     $(submitForm).show();
                 });
             }
@@ -293,7 +293,6 @@ $(function () {
     // изменение элемента input с type="file"
     ProcessForm.prototype.changeInputFile = function (e) {
         // условия для добавления нового элемента input с type="file"
-        console.log('1');
         var isSelectFile = e.currentTarget.files.length > 0;
         var isNextInput = $(e.currentTarget).next('p').next('input[name="attachment[]"]').length === 0;
         var isMaxInput = $('#' + this.idForm + ' input[name="attachment[]"]').length < this.countFiles;
