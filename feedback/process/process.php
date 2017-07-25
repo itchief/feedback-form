@@ -167,8 +167,9 @@ if ($data['result'] == 'success') {
     $mail = new PHPMailer;
     $mail->CharSet = 'UTF-8';
     $mail->IsHTML(true);  // формат HTML
-    $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
-    $mail->Subject = MAIL_SUBJECT;
+    $fromName = '=?UTF-8?B?'.base64_encode(MAIL_FROM_NAME).'?=';
+    $mail->setFrom(MAIL_FROM, $fromName);
+    $mail->Subject = '=?UTF-8?B?'.base64_encode(MAIL_SUBJECT).'?=';
     $mail->Body = $bodyMail;
     $mail->addAddress(MAIL_ADDRESS);
 
