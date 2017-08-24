@@ -76,7 +76,7 @@ $(function () {
         // если есть расширение, то проверяем соотвествует ли оно допустимому
         if (fileExtension) {
             for (var i = 0; i <= this.validFileExtensions.length; i++) {
-                if (this.validFileExtensions[i] === fileExtension) {
+                if (this.validFileExtensions[i] === fileExtension.toLowerCase()) {
                     return true;
                 }
             }
