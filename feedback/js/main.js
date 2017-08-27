@@ -20,7 +20,7 @@ $(function () {
         // допустимые разрешения файлов
         this.validFileExtensions = parameters['validFileExtensions'] || ['jpg', 'jpeg', 'bmp', 'gif', 'png'];
         // флажок о принятии пользовательского соглашения перед отправкой формы
-        this.agreeCheckbox = parameters['agreeCheckbox'] || true;
+        this.disableAgreement = parameters['disableAgreement'] || false;
 
         // инициализация
         this.init = function () {
@@ -39,15 +39,18 @@ $(function () {
                 $(document).on('change', '#' + this.idForm + ' input[name="attachment[]"]', $.proxy(this.changeInputFile, this));
             }
 
-            if (this.agreeCheckbox) { // добавление новых элементов input с type="file"
-                // добавление нового элемента input с type="file"
+            if (!this.disableAgreement) {
                 $(document).on('change', '#' + this.idForm + ' input[name="agree"]', $.proxy(this.changeAgreement, this));
             }
 
             if (this.hideForm) {
+                var self = this;
                 $(submitForm).parent().find('.show-form').click(function (e) {
                     e.preventDefault();
                     $(this).closest('.success-message').addClass('hidden');
+                    if (self.disableAgreement) {
+                        self.changeStateSubmit(false);
+                    }
                     $(submitForm).show();
                 });
             }
@@ -175,7 +178,7 @@ $(function () {
             cache: false,
             beforeSend: function () {
                 $('#' + _this.idForm + ' .progress').show();
-                _this.changeStateSubmit(true);
+                 _this.changeStateSubmit(true);
             },
 
             xhr: function () {
@@ -336,7 +339,7 @@ $(function () {
      validFileExtensions - допустимые расширения файлов (по умолчанию 'jpg','jpeg','bmp','gif','png')
      existenceCaptcha - наличие у формы капчи (по умолчанию true)
      hideForm - скрыть форму после отправки данных
-     agreeCheckbox - флажок о принятии пользовательского соглашения перед отправкой формы (по умолчанию true)
+     disableAgreement - отключить проверку пользовательского соглашения (по умолчанию false)
 
      */
     var formFeedback = new ProcessForm({idForm: 'feedbackForm', maxSizeFile: 524288});
