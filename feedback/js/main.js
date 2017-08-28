@@ -114,8 +114,6 @@ $(function () {
         var glyphiconInput = inputGroup.find('.form-control-feedback');
         if (state === 'error') {
             inputGroup.removeClass('has-success').addClass('has-error');
-            console.log(input.prop('tagName'));
-            console.log(input.prop('tagName').toLowerCase());
             if (input.prop("tagName").toLowerCase() !== 'textarea') {
                 glyphiconInput.removeClass('glyphicon-ok').addClass('glyphicon-remove');
             }
@@ -221,9 +219,8 @@ $(function () {
                         _this.changeStateInput(this, 'clear');
                     });
                     if (_this.existenceUploadsFile) {
-                        $('#' + _this.idForm + ' .countFiles').parents('.form-group').html(
-                            '<p style="font-weight: 700;">Прикрепить к сообщению файлы (максимум <span class="countFiles">' +
-                            _this.countFiles + '</span>):</p><input type="file" name="attachment[]">' +
+                        $('#' + _this.idForm + ' .attachments').html(
+                            '<input type="file" name="attachment[]">' +
                             '<p style="margin-top: 3px; margin-bottom: 3px; color: #ff0000;"></p>');
                     }
                     if (_this.existenceCaptcha) {
