@@ -69,9 +69,9 @@ if (isset($_POST['message'])) {
 }
 
 //валидация капчи
-if (isset($_POST['captcha']) && isset($_SESSION['code'])) {
+if (isset($_POST['captcha']) && isset($_SESSION['captcha'])) {
     $captcha = filter_var($_POST['captcha'], FILTER_SANITIZE_STRING); // защита от XSS
-    if ($_SESSION["code"] != $captcha) { // проверка капчи
+    if ($_SESSION['captcha'] != $captcha) { // проверка капчи
         $data['captcha'] = 'Вы неправильно ввели код с картинки';
         $data['result'] = 'error';
     }

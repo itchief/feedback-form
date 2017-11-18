@@ -237,7 +237,13 @@ $(function () {
                         var captcha = submitForm.find('[name="captcha"]').eq(0);
                         $(captcha).val('');
                         var imgCaptcha = submitForm.find('.img-captcha');
-                        imgCaptcha.attr('src', imgCaptcha.attr('data-src') + '?id=' + Math.random() + '');
+                        var src = imgCaptcha.attr('data-src');
+                        if (src.indexOf('?id') !== -1) {
+                            src += '&rnd='+(new Date()).getTime();
+                        } else {
+                            src += '?rnd='+(new Date()).getTime();
+                        }
+                        imgCaptcha.attr('src',src);
                     }
 
                     // если сервер вернул ответ error...
@@ -287,7 +293,13 @@ $(function () {
     // обновление капчи
     ProcessForm.prototype.refreshCaptcha = function () {
         var imgCaptcha = $('#' + this.idForm).find('.img-captcha');
-        imgCaptcha.attr('src', imgCaptcha.attr('data-src') + '?id=' + Math.random() + '');
+        var src = imgCaptcha.attr('data-src');
+        if (src.indexOf('?id') !== -1) {
+            src += '&rnd='+(new Date()).getTime();
+        } else {
+            src += '?rnd='+(new Date()).getTime();
+        }
+        imgCaptcha.attr('src',src);
     };
 
     // изменение элемента input с type="file"
