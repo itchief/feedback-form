@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Форма обратной связи (https://itchief.ru/lessons/php/feedback-form-for-website)
+ * Copyright 2016-2018 Alexander Maltsev
+ * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
+ */
+
 // подключаем файл настроек
 require_once dirname(__FILE__) . '/process_settings.php';
 
