@@ -1,5 +1,11 @@
 <?php
 
+/*
+ * Форма обратной связи (https://itchief.ru/lessons/php/feedback-form-for-website)
+ * Copyright 2016-2018 Alexander Maltsev
+ * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
+ */
+
 // стартовый путь ('http://mydomain.ru/')
 $startPath = 'http' . (isset($_SERVER['HTTPS']) ? 's' : '') . '://' . $_SERVER['HTTP_HOST'] . '/';
 // максимальный размер файла 512Кбайт (512*1024=524288)
