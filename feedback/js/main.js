@@ -14,11 +14,11 @@ $(function () {
         // id формы обратной связи
         this.idForm = parameters['idForm'] || 'feedbackForm';
         // скрыть форму после отправки
-        this.hideForm = parameters['hideForm'] || true;
+        this.hideForm = parameters['hideForm'] || false;
         // наличие у формы блока загрузки файлов
-        this.existenceUploadsFile = parameters['existenceUploadsFile'] || true;
+        this.existenceUploadsFile = parameters['existenceUploadsFile'] || false;
         // наличие у формы капчи
-        this.existenceCaptcha = parameters['existenceCaptcha'] || true;
+        this.existenceCaptcha = parameters['existenceCaptcha'] || false;
         // количество элементов input для загрузки файлов
         this.countFiles = parameters['countFiles'] || 5;
         // максимальный размер файла для загрузки (по умолчанию 512 Кбайт)
@@ -348,12 +348,12 @@ $(function () {
      ...
      }
      idForm - id формы обратной связи (по умолчанию feedbackForm)
-     existenceUploadsFile - наличие у формы блока загрузки файлов (по умолчанию true)
+     existenceUploadsFile - наличие у формы блока загрузки файлов (по умолчанию false)
      countFiles - количество файлов для загрузки (по умолчанию 5)
      maxSizeFile - максиальный размер файла в байтах (по умолчанию 524288 байт)
      validFileExtensions - допустимые расширения файлов (по умолчанию 'jpg','jpeg','bmp','gif','png')
-     existenceCaptcha - наличие у формы капчи (по умолчанию true)
-     hideForm - скрыть форму после отправки данных
+     existenceCaptcha - наличие у формы капчи (по умолчанию false)
+     hideForm - скрыть форму после отправки данных (по умолчанию false)
      disableAgreement - отключить проверку пользовательского соглашения (по умолчанию false)
 
      */
