@@ -170,7 +170,7 @@ $(function () {
         var _this = this;
         e.preventDefault();
         if (this.validateForm() === false) {
-          return;
+            return;
         }
         this.collectData();
         $.ajax({
@@ -182,7 +182,7 @@ $(function () {
             cache: false,
             beforeSend: function () {
                 $('#' + _this.idForm + ' .progress').show();
-                 _this.changeStateSubmit(true);
+                _this.changeStateSubmit(true);
             },
 
             xhr: function () {
@@ -218,7 +218,7 @@ $(function () {
                 var submitForm = $('#' + _this.idForm);
                 // если сервер вернул ответ success, то значит двнные отправлены
                 if (data.result === "success") {
-                    $.jGrowl('Форма успешно отправлена!', {theme: 'jgrowl-success', life: 10000});
+                    $.jGrowl('Форма успешно отправлена!', { theme: 'jgrowl-success', life: 10000 });
                     document.getElementById(_this.idForm).reset();
 
                     submitForm.find('input,textarea').each(function () {
@@ -245,11 +245,11 @@ $(function () {
                         var imgCaptcha = submitForm.find('.img-captcha');
                         var src = imgCaptcha.attr('data-src');
                         if (src.indexOf('?id') !== -1) {
-                            src += '&rnd='+(new Date()).getTime();
+                            src += '&rnd=' + (new Date()).getTime();
                         } else {
-                            src += '?rnd='+(new Date()).getTime();
+                            src += '?rnd=' + (new Date()).getTime();
                         }
-                        imgCaptcha.attr('src',src);
+                        imgCaptcha.attr('src', src);
                     }
 
                     // если сервер вернул ответ error...
@@ -270,12 +270,12 @@ $(function () {
                                 continue;
                             }
                             if (error !== 'info' && error !== 'log') { // кроме тех, которые имеют ключ info или log
-                                $.jGrowl(data[error], {theme: 'jgrowl-error', life: 5000});
+                                $.jGrowl(data[error], { theme: 'jgrowl-error', life: 5000 });
                                 _this.changeStateInput($(submitForm).find('[name="' + error + '"]').eq(0), 'error');
                             }
                             if (error === 'info') { // выводим все сообщения с ключом info с помощью jGrowl
                                 data[error].forEach(function (info, i, error) {
-                                    $.jGrowl(info, {theme: 'jgrowl-error', life: 5000});
+                                    $.jGrowl(info, { theme: 'jgrowl-error', life: 5000 });
                                 });
                             }
                             if (error === 'log') { // выводим все сообщения с ключом log в консоль браузера
@@ -301,11 +301,11 @@ $(function () {
         var imgCaptcha = $('#' + this.idForm).find('.img-captcha');
         var src = imgCaptcha.attr('data-src');
         if (src.indexOf('?id') !== -1) {
-            src += '&rnd='+(new Date()).getTime();
+            src += '&rnd=' + (new Date()).getTime();
         } else {
-            src += '?rnd='+(new Date()).getTime();
+            src += '?rnd=' + (new Date()).getTime();
         }
-        imgCaptcha.attr('src',src);
+        imgCaptcha.attr('src', src);
     };
 
     // изменение элемента input с type="file"
@@ -355,9 +355,13 @@ $(function () {
      existenceCaptcha - наличие у формы капчи (по умолчанию false)
      hideForm - скрыть форму после отправки данных (по умолчанию false)
      disableAgreement - отключить проверку пользовательского соглашения (по умолчанию false)
-
+  
      */
-    var formFeedback = new ProcessForm({idForm: 'feedbackForm', maxSizeFile: 524288});
+    var formFeedback = new ProcessForm({
+        idForm: 'feedbackForm',
+        maxSizeFile: 524288,
+        existenceUploadsFile: true
+    });
     formFeedback.init();
 
     //var contactForm = new ProcessForm({ idForm: 'contactForm', existenceUploadsFile: false, existenceCaptcha: false });
