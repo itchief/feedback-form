@@ -192,7 +192,7 @@ if ($data['result'] == 'success') {
     }
 
     // информируем пользователя по email о доставке
-    if (isset($email)) {
+    if (isset($email) && $data['result'] != 'error') {
         // очистка всех адресов и прикреплёных файлов
         $mail->clearAllRecipients();
         $mail->clearAttachments();
