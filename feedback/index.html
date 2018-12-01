@@ -2,132 +2,159 @@
 <html lang="ru">
 
 <head>
-    <meta charset="utf-8">
-    <title>Форма обратной связи</title>
-    <link rel="stylesheet" href="/feedback/vendors/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" href="/feedback/vendors/jgrowl/jquery.jgrowl.min.css">
-    <link rel="stylesheet" href="/feedback/css/main.css">
+  <meta charset="utf-8">
+  <title>Форма обратной связи</title>
+  <link rel="stylesheet" href="/feedback/vendors/bootstrap/css/bootstrap.min.css">
+  <style>
+    .refresh-captcha,
+    button[type="submit"] {
+      padding-left: 2rem;
+    }
+
+    .refresh-captcha::before {
+      content: "";
+      position: absolute;
+      width: 1rem;
+      height: 1rem;
+      left: .5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent no-repeat center center;
+      background-size: 100% 100%;
+      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512.333 512'%3E%3Cpath fill='%23000' d='M440.935 12.574l3.966 82.766C399.416 41.904 331.674 8 256 8 134.813 8 33.933 94.924 12.296 209.824 10.908 217.193 16.604 224 24.103 224h49.084c5.57 0 10.377-3.842 11.676-9.259C103.407 137.408 172.931 80 256 80c60.893 0 114.512 30.856 146.104 77.801l-101.53-4.865c-6.845-.328-12.574 5.133-12.574 11.986v47.411c0 6.627 5.373 12 12 12h200.333c6.627 0 12-5.373 12-12V12c0-6.627-5.373-12-12-12h-47.411c-6.853 0-12.315 5.729-11.987 12.574zM256 432c-60.895 0-114.517-30.858-146.109-77.805l101.868 4.871c6.845.327 12.573-5.134 12.573-11.986v-47.412c0-6.627-5.373-12-12-12H12c-6.627 0-12 5.373-12 12V500c0 6.627 5.373 12 12 12h47.385c6.863 0 12.328-5.745 11.985-12.599l-4.129-82.575C112.725 470.166 180.405 504 256 504c121.187 0 222.067-86.924 243.704-201.824 1.388-7.369-4.308-14.176-11.807-14.176h-49.084c-5.57 0-10.377 3.842-11.676 9.259C408.593 374.592 339.069 432 256 432z'/%3E%3C/svg%3E");
+    }
+
+    .custom-file-input:lang(ru)~.custom-file-label::after {
+      content: "Обзор";
+    }
+
+    button[type="submit"]::before {
+      content: "";
+      position: absolute;
+      width: 1rem;
+      height: 1rem;
+      left: .5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent no-repeat center center;
+      background-size: 100% 100%;
+      background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512.333 512'%3E%3Cpath fill='%23fff' d='M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z'/%3E%3C/svg%3E");
+    }
+  </style>
 </head>
 
 <body>
 
-<h1 class="text-center page-header">Форма обратной связи</h1>
+  <h1 class="text-center h4 mt-4">Форма обратной связи</h1>
+  <hr class="mt-1 mb-4">
 
-<div class="container">
-    <div class="row">
-        <div class="col-sm-6 col-sm-offset-3">
-            <div class="panel panel-success">
-                <div class="panel-heading">
-                    <h2 class="h3 panel-title">Форма обратной связи</h2>
-                </div>
-                <div class="panel-body">
+  <div class="container">
+    <div class="card mx-auto mb-4 rounded-0" style="max-width: 35rem;">
+      <div class="card-body position-relative">
 
-                    <!-- Форма обратной связи -->
-                    <form id="feedbackForm" action="/feedback/process/process.php" enctype="multipart/form-data"
-                          novalidate>
-                        <div class="row">
-                            <div class="col-sm-6">
 
-                                <!-- Имя пользователя -->
-                                <div class="form-group has-feedback">
-                                    <label for="name" class="control-label">Имя</label>
-                                    <input id="name" type="text" name="name" class="form-control"
-                                           value="" placeholder="Имя" minlength="2" required="required">
-                                    <span class="glyphicon form-control-feedback"></span>
-                                </div>
-
-                            </div>
-                            <div class="col-sm-6">
-
-                                <!-- Email пользователя -->
-                                <div class="form-group has-feedback">
-                                    <label for="email" class="control-label">Email-адрес</label>
-                                    <input id="email" type="email" name="email" required="required"
-                                           class="form-control"
-                                           value="" placeholder="Email-адрес">
-                                    <span class="glyphicon form-control-feedback"></span>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <!-- Сообщение пользователя -->
-                        <div class="form-group has-feedback">
-                            <label for="message" class="control-label">Сообщение (не менее 20 символов)</label>
-                            <textarea id="message" name="message" class="form-control"
-                                      rows="3" placeholder="Сообщение (не менее 20 символов)" minlength="20"
-                                      maxlength="500" required="required"></textarea>
-                        </div>
-
-                        <!-- Файлы, для прикрепления к форме -->
-                        <div class="form-group">
-                            <p style="font-weight: 700; margin-bottom: 0;">Прикрепить к сообщению файлы (до <span
-                                    class="countFiles"></span>):</p>
-                            <p class="small success">jpg, jpeg, bmp, gif, png (до 512 Кбайт)</p>
-                            <div class="attachments">
-                                <input type="file" name="attachment[]">
-                                <p style="margin-top: 3px; margin-bottom: 3px; color: #ff0000;"></p>
-                            </div>
-                        </div>
-
-                        <!-- Капча -->
-                        <div class="captcha">
-                            <img class="img-captcha" src="/feedback/captcha/captcha.php"
-                                 data-src="/feedback/captcha/captcha.php">
-                            <div class="btn btn-default refresh-captcha"><i class="glyphicon glyphicon-refresh"></i>
-                                Обновить
-                            </div>
-                            <div class="form-group has-feedback" style="margin-top: 10px;">
-                                <label for="captcha" class="control-label">Код, показанный на изображении</label>
-                                <input type="text" name="captcha" maxlength="6" required="required" id="captcha"
-                                       class="form-control captcha" placeholder="******" autocomplete="off" value="">
-                                <span class="glyphicon form-control-feedback"></span>
-                            </div>
-                        </div>
-
-                        <!-- Пользовательское солашение -->
-                        <div class="checkbox">
-                            <label>
-                                <input type="checkbox" name="agree"> Нажимая кнопку, я принимаю условия
-                                <a href="#">Пользовательского соглашения</a> и даю своё согласие на обработку моих
-                                персональных данных, в соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О
-                                персональных
-                                данных».
-                            </label>
-                        </div>
-
-                        <!-- Кнопка для отправки формы -->
-                        <button type="submit" class="btn btn-success pull-right" disabled="disabled">Отправить
-                            сообщение
-                        </button>
-
-                        <!-- Индикация загрузки данных формы на сервер -->
-                        <div class="clearfix"></div>
-                        <div class="progress" style="display:none; margin-top: 20px;">
-                            <div class="progress-bar progress-bar-success progress-bar-striped" role="progressbar"
-                                 aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0">
-                                <span class="sr-only">0%</span>
-                            </div>
-                        </div>
-                        <div class="clearfix"></div>
-
-                    </form>
-
-                    <!-- Сообщение об успешной отправки формы -->
-                    <div class="alert alert-warning success-message hidden">
-                        Форма успешно отправлена. Нажмите на <a class="show-form" href="#">ссылку</a>, чтобы отправить ещё одно сообщение.
-                    </div>
-
-                </div>
+        <!-- Форма обратной связи -->
+        <form id="feedback-form" action="/feedback/process/process.php" enctype="multipart/form-data" novalidate>
+          <div class="form-row">
+            <div class="col-sm-6">
+              <!-- Имя пользователя -->
+              <div class="form-group">
+                <label for="name" class="control-label">Имя</label>
+                <input id="name" type="text" name="name" class="form-control" value="" placeholder="Имя" minlength="2"
+                  maxlength="30" required="required">
+                <div class="invalid-feedback"></div>
+              </div>
             </div>
-        </div>
-    </div>
-</div>
+            <div class="col-sm-6">
+              <!-- Email пользователя -->
+              <div class="form-group">
+                <label for="email" class="control-label">Email-адрес</label>
+                <input id="email" type="email" name="email" required="required" class="form-control" value=""
+                  placeholder="Email-адрес">
+                <div class="invalid-feedback"></div>
+              </div>
+            </div>
+          </div>
+          <!-- Сообщение пользователя -->
+          <div class="form-group">
+            <label for="message" class="control-label">Сообщение (не менее 20 символов)</label>
+            <textarea id="message" name="message" class="form-control" rows="3" placeholder="Сообщение (не менее 20 символов)"
+              minlength="20" maxlength="500" required="required"></textarea>
+            <div class="invalid-feedback"></div>
+          </div>
 
-<script src="/feedback/vendors/jquery/jquery-3.2.1.min.js"></script>
-<script src="/feedback/vendors/bootstrap/js/bootstrap.min.js"></script>
-<script src="/feedback/vendors/jgrowl/jquery.jgrowl.min.js"></script>
-<script src="/feedback/js/main.js"></script>
+          <!-- Файлы, для прикрепления к форме -->
+          <div class="form-group">
+            <p style="font-weight: 700; margin-bottom: 0;">Прикрепить к сообщению файлы (до <span class="countFiles">5</span>):</p>
+            <p class="text-secondary">jpg, jpeg, bmp, gif, png (до 512 Кбайт)</p>
+            <div class="attachments" data-counts="5">
+              <div class="form-group">
+                <div class="custom-file">
+                  <input name="attachment[]" type="file" class="custom-file-input" id="validatedCustomFile" lang="ru">
+                  <label class="custom-file-label" for="validatedCustomFile">Выберите файл...</label>
+                  <div class="invalid-feedback"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Капча -->
+          <div class="form-group captcha">
+            <img class="img-captcha" src="/feedback/captcha/captcha.php" data-src="/feedback/captcha/captcha.php">
+            <div class="btn btn-light position-relative refresh-captcha">Обновить</div>
+            <div class="form-group">
+              <label for="captcha" class="control-label">Код, показанный на изображении</label>
+              <input type="text" name="captcha" maxlength="6" required="required" id="captcha" class="form-control captcha"
+                placeholder="******" autocomplete="off" value="">
+              <div class="invalid-feedback"></div>
+            </div>
+          </div>
+
+          <!-- Пользовательское солашение -->
+          <div class="form-group agreement">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" name="agree" class="custom-control-input" id="customCheck">
+              <label class="custom-control-label" for="customCheck">Нажимая кнопку, я принимаю условия <a href="#">Пользовательского
+                  соглашения</a> и даю своё согласие на обработку моих персональных данных, в соответствии с
+                Федеральным законом от 27.07.2006 года №152-ФЗ «О персональных данных».</label>
+            </div>
+          </div>
+
+          <!-- Сообщение при ошибке -->
+          <div class="alert alert-danger form-error d-none">
+            Исправьте данные и отправьте форму ещё раз.
+          </div>
+
+          <!-- Индикация отправки данных формы на сервер -->
+          <div class="progress d-none mb-2">
+            <div class="progress-bar progress-bar-striped bg-success" role="progressbar" aria-valuenow="0"
+              aria-valuemin="0" aria-valuemax="100" style="width: 0">
+              <span class="sr-only">0%</span>
+            </div>
+          </div>
+
+          <!-- Кнопка для отправки формы -->
+          <div class="text-right submit">
+            <button type="submit" class="btn btn-primary position-relative" disabled="disabled">Отправить сообщение</button>
+          </div>
+
+        </form>
+
+        <!-- Сообщение об успешной отправки формы -->
+        <div class="form-result-success d-none text-center justify-content-center align-items-center" style="position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.6); color: #fff; font-size: 1.25rem; z-index: 1000;">
+          <div class="alert alert-success rounded-0" style="z-index: 1001;">Форма успешно отправлена. Нажмите на
+            <a class="alert-link" href="#" data-reloadform="#feedback-form">ссылку</a>, чтобы отправить ещё одно
+            сообщение.</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="/feedback/vendors/jquery/jquery-3.3.1.min.js"></script>
+  <script src="/feedback/vendors/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/feedback/js/main.js"></script>
 
 </body>
 
