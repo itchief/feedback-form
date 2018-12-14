@@ -23,7 +23,7 @@ var ProcessForm = function (config) {
       '</div>' +
       '</div>'
   }
-  for (prop in config) {
+  for (var prop in config) {
     _config[prop] = config[prop];
   }
   this.getConfig = function () {
