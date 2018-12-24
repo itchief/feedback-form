@@ -187,7 +187,12 @@ if ($data['result'] == 'success' && IS_SEND_MAIL == true) {
   $mail->setFrom(MAIL_FROM, $fromName);
   $mail->Subject = '=?UTF-8?B?'.base64_encode(MAIL_SUBJECT).'?=';
   $mail->Body = $bodyMail;
-  $mail->addAddress(MAIL_ADDRESS);
+  
+  $emails = explode(',', MAIL_ADDRESS);
+  foreach($emails as $address) {
+    $mail->addAddress(trim($address));
+  }
+
     // прикрепление файлов к письму
   if (IS_SENS_FILES_AS_ATTACHMENTS) {
     if (isset($attachments)) {
