@@ -182,10 +182,10 @@ if ($data['result'] == 'success' && IS_SEND_MAIL == true) {
   // устанавливаем параметры
   $mail = new PHPMailer;
   $mail->CharSet = 'UTF-8';
+  $mail->Encoding = 'base64';
   $mail->IsHTML(true);
-  $fromName = '=?UTF-8?B?'.base64_encode(MAIL_FROM_NAME).'?=';
-  $mail->setFrom(MAIL_FROM, $fromName);
-  $mail->Subject = '=?UTF-8?B?'.base64_encode(MAIL_SUBJECT).'?=';
+  $mail->setFrom(MAIL_FROM, MAIL_FROM_NAME);
+  $mail->Subject = MAIL_SUBJECT;
   $mail->Body = $bodyMail;
   
   $emails = explode(',', MAIL_ADDRESS);
