@@ -1,6 +1,7 @@
 /*!
- * Форма обратной связи (https://itchief.ru/lessons/php/feedback-form-for-website)
- * Copyright 2016-2018 Alexander Maltsev
+ * Форма обратной связи (https://github.com/itchief/feedback-form)
+ * Страница с описанием: https://itchief.ru/lessons/php/feedback-form-for-website
+ * Copyright 2016-2019 Alexander Maltsev
  * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
  */
 
@@ -12,6 +13,7 @@ var ProcessForm = function (config) {
     isCaptcha: true, // наличие капчи
     isAgreement: true,  // наличие пользовательского соглашения
     isAttachments: true, // наличие блока для прикрепления файлов
+    isShowSuccessMessage: true, // отображение дефолтного сообщения после отправки
     customFileText: '',
     maxSizeFile: 0.5, // максмальный размер файла в мегабайтах
     validFileExtensions: ['jpg', 'jpeg', 'bmp', 'gif', 'png'],
@@ -191,7 +193,7 @@ ProcessForm.prototype = function () {
     if (!config.isAttachments) {
       return;
     }
-    var 
+    var
       files = $(config.selector).find('[name="attachment[]"]'),
       index = 0;
     for (var i = 0; i < files.length; i++) {
@@ -204,13 +206,13 @@ ProcessForm.prototype = function () {
         // проверить тип файла и размер
         if (!_validateFileExtension(file.name, config.validFileExtensions) && (file.size < config.maxSizeFile * 1024 * 1024)) {
           $(files[i]).prop('disabled', state);
-          $(files[i]).attr('data-index','-1');
+          $(files[i]).attr('data-index', '-1');
         } else {
           $(files[i]).attr('data-index', index++);
         }
       } else {
         $(files[i]).prop('disabled', state);
-        $(files[i]).attr('data-index','-1');
+        $(files[i]).attr('data-index', '-1');
       }
     }
   };
@@ -234,6 +236,9 @@ ProcessForm.prototype = function () {
     if (!$(_this).find('.form-error').hasClass('d-none')) {
       $(_this).find('.form-error').addClass('d-none');
     }
+
+    _this.configForm = config;
+
     $.ajax({
       context: _this,
       type: "POST",
@@ -269,7 +274,8 @@ ProcessForm.prototype = function () {
           }, false);
         }
         return myXhr;
-      }
+      },
+
     })
       .done(_success)
       .fail(_error)
@@ -284,18 +290,20 @@ ProcessForm.prototype = function () {
         .find('.progress-bar').attr('aria-valuenow', '0').width('0')
         .find('.sr-only').text('0%');
     }
-
     // при успешной отправки формы
     if (data.result === "success") {
-      $(this).parent().find('.form-result-success')
-        .removeClass('d-none')
-        .addClass('d-flex');
+      $(document).trigger('pf_success', {data: _this});
+      if (_this.configForm.isShowSuccessMessage) {
+        $(this).parent().find('.form-result-success')
+          .removeClass('d-none')
+          .addClass('d-flex');
+      }
       return;
     }
     // если произошли ошибки при отправке
     $(this).find('.form-error').removeClass('d-none');
     _changeStateSubmit(this, false);
-  
+
     // выводим ошибки которые прислал сервер
     for (var error in data) {
       if (!data.hasOwnProperty(error)) {
@@ -340,6 +348,10 @@ ProcessForm.prototype = function () {
     _setupListener(this);
   }
 
+  var _reset = function () {
+    _showForm(this);
+  }
+
   // устанавливаем обработчики событий
   var _setupListener = function (_this) {
     $(document).on('change', _this.getConfig().selector + ' [name="agree"]', function () {
@@ -366,6 +378,7 @@ ProcessForm.prototype = function () {
     }
   }
   return {
-    init: _init
+    init: _init,
+    reset: _reset
   }
 }();
