@@ -2,7 +2,7 @@
 
 /*
  * Форма обратной связи (https://itchief.ru/lessons/php/feedback-form-for-website)
- * Copyright 2016-2018 Alexander Maltsev
+ * Copyright 2016-2020 Alexander Maltsev
  * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
  */
 
@@ -15,12 +15,12 @@ if (isset($_GET['id'])) {
 }
 
 // присваиваем PHP переменной captchastring строку символов
-$captchastring = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz';
+$captchaStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz';
 // получаем первые 6 символов после их перемешивания с помощью функции str_shuffle
-$captchastring = substr(str_shuffle($captchastring), 0, 6);
+$captchaStr = substr(str_shuffle($captchaStr), 0, 6);
 // инициализируем переменной сессии с помощью сгенерированной подстроки captchastring,
 // содержащей 6 символов
-$_SESSION[$id] = $captchastring;
+$_SESSION[$id] = $captchaStr;
 
 // генерируем CAPTCHA
 
@@ -35,8 +35,8 @@ $rotate = rand(-10, 10);
 // рисуем текст на изображении шрифтом TrueType (1 параметр - изображение ($image),
 // 2 - размер шрифта (18), 3 - угол поворота текста ($rotate),
 // 4, 5 - начальные координаты x и y для текста (18,30), 6 - индекс цвета ($colour),
-// 7 - путь к файлу шрифта ($font), 8 - текст ($captchastring)
-imagettftext($image, 18, $rotate, 28, 32, $colour, $font, $captchastring);
+// 7 - путь к файлу шрифта ($font), 8 - текст ($captchaStr)
+imagettftext($image, 18, $rotate, 28, 32, $colour, $font, $captchaStr);
 // будем передавать изображение в формате png
 header('Content-type: image/png');
 //выводим изображение

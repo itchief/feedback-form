@@ -1,11 +1,11 @@
 /*!
  * Форма обратной связи (https://github.com/itchief/feedback-form)
  * Страница с описанием: https://itchief.ru/lessons/php/feedback-form-for-website
- * Copyright 2016-2019 Alexander Maltsev
+ * Copyright 2016-2020 Alexander Maltsev
  * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
  */
 
-"use strict";
+'use strict';
 
 var ProcessForm = function (config) {
   var _config = {
@@ -24,25 +24,25 @@ var ProcessForm = function (config) {
       '<div class="invalid-feedback"></div>' +
       '</div>' +
       '</div>'
-  }
+  };
   for (var prop in config) {
     _config[prop] = config[prop];
   }
   this.getConfig = function () {
     return _config;
-  }
+  };
   this.getForm = function () {
     return $(_config.selector)[0];
-  }
+  };
   this.setIsCaptcha = function (value) {
     _config.isCaptcha = value;
-  }
+  };
   this.setIsAgreement = function (value) {
     _config.isAgreement = value;
-  }
+  };
   this.setIsAttachments = function (value) {
     _config.isAttachments = value;
-  }
+  };
 };
 
 ProcessForm.prototype = function () {
@@ -124,7 +124,7 @@ ProcessForm.prototype = function () {
     if (_this.getConfig().isCaptcha) {
       _refreshCaptcha(form);
     }
-    if (_this.getConfig().isAgreeCheckbox) {
+    if (_this.getConfig().isAgreement) {
       _changeStateSubmit(form, true);
     } else {
       _changeStateSubmit(form, false);
@@ -274,8 +274,7 @@ ProcessForm.prototype = function () {
           }, false);
         }
         return myXhr;
-      },
-
+      }
     })
       .done(_success)
       .fail(_error)
@@ -308,7 +307,7 @@ ProcessForm.prototype = function () {
     for (var error in data) {
       if (!data.hasOwnProperty(error)) {
         continue;
-      };
+      }
       switch (error) {
         case 'captcha':
           _refreshCaptcha($(this));
@@ -346,11 +345,11 @@ ProcessForm.prototype = function () {
     this.setIsAgreement($(this.getForm()).find('.agreement').length > 0); // имеется ли у формы секция agreement
     this.setIsAttachments($(this.getForm()).find('.attachments').length > 0); // имеется ли у формы секция attachments
     _setupListener(this);
-  }
+  };
 
   var _reset = function () {
     _showForm(this);
-  }
+  };
 
   // устанавливаем обработчики событий
   var _setupListener = function (_this) {
@@ -376,7 +375,7 @@ ProcessForm.prototype = function () {
         _changeInputFile(e, _this);
       });
     }
-  }
+  };
   return {
     init: _init,
     reset: _reset
