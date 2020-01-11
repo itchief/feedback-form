@@ -19,6 +19,7 @@ var ProcessForm = function (config) {
     validFileExtensions: ['jpg', 'jpeg', 'bmp', 'gif', 'png'],
     codeFragmentAttachment: '<div class="form-group">' +
       '<div class="custom-file">' +
+      '<button type="button" class="attachment-remove" title="Удалить">✖</button>' +
       '<input name="attachment[]" type="file" class="custom-file-input" id="validatedCustomFile" lang="ru">' +
       '<label class="custom-file-label" for="validatedCustomFile">Выберите файл...</label>' +
       '<div class="invalid-feedback"></div>' +
@@ -154,6 +155,11 @@ ProcessForm.prototype = function () {
     var isMaxInput = $(_this.getConfig().selector + ' input[name="attachment[]"]').length < $(_this.getConfig().selector + ' .attachments').attr('data-counts');
     if (isSelectFile && isNextInput && isMaxInput) {
       $(e.currentTarget).closest('.form-group').after(_this.getConfig().codeFragmentAttachment);
+    }
+    if ($(_this.getConfig().selector + ' input[name="attachment[]"]').length == $(_this.getConfig().selector + ' .attachments').attr('data-counts')) {
+      $(_this.getConfig().selector + ' .attachments').attr('data-max', true);
+    } else {
+      $(_this.getConfig().selector + ' .attachments').attr('data-max', false);
     }
     // если файл выбран, то выполняем следующие действия...
     if (e.currentTarget.files.length > 0) {
@@ -291,7 +297,7 @@ ProcessForm.prototype = function () {
     }
     // при успешной отправки формы
     if (data.result === "success") {
-      $(document).trigger('pf_success', {data: _this});
+      $(document).trigger('pf_success', { data: _this });
       if (_this.configForm.isShowSuccessMessage) {
         $(this).parent().find('.form-result-success')
           .removeClass('d-none')
@@ -367,6 +373,29 @@ ProcessForm.prototype = function () {
     $(document).on('click', '[data-reloadform="' + _this.getConfig().selector + '"]', function (e) {
       e.preventDefault();
       _showForm(_this);
+    });
+    $(document).on('click', _this.getConfig().selector + ' .attachment-remove', function (e) {
+      var input = $(this).next('input');
+      if (input.closest('.attachments').find('input').length > 1) {
+        $(input).closest('.form-group').remove();
+      } else {
+        if (input[0].files.length > 0) {
+          input[0].value = '';
+          $(input).trigger('change');
+        }
+      }
+      $(_this.getConfig().selector + ' .attachments').attr('data-max', false);
+    });
+    $(document).on('click', _this.getConfig().selector + ' .attachment-add', function (e) {
+      var isMaxInput = $(_this.getConfig().selector + ' input[name="attachment[]"]').length < $(_this.getConfig().selector + ' .attachments').attr('data-counts');
+      if (isMaxInput) {
+        $(this).parent().find('.attachments').append(_this.getConfig().codeFragmentAttachment);
+      }
+      if ($(_this.getConfig().selector + ' input[name="attachment[]"]').length == $(_this.getConfig().selector + ' .attachments').attr('data-counts')) {
+        $(_this.getConfig().selector + ' .attachments').attr('data-max', true);
+      } else {
+        $(_this.getConfig().selector + ' .attachments').attr('data-max', false);
+      }
     });
     if (_this.getConfig().isAttachments) {
       //$('#' + this.idForm + ' .countFiles').text(this.countFiles);
