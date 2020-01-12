@@ -12,19 +12,14 @@ var ProcessForm = function (config) {
     selector: '#feedback-form', // селектор формы обратной связи
     isCaptcha: true, // наличие капчи
     isAgreement: true,  // наличие пользовательского соглашения
-    isAttachments: true, // наличие блока для прикрепления файлов
+    isAttachments: false, // наличие блока для прикрепления файлов
     isShowSuccessMessage: true, // отображение дефолтного сообщения после отправки
     customFileText: '',
     maxSizeFile: 0.5, // максмальный размер файла в мегабайтах
     validFileExtensions: ['jpg', 'jpeg', 'bmp', 'gif', 'png'],
-    codeFragmentAttachment: '<div class="form-group">' +
-      '<div class="custom-file">' +
-      '<button type="button" class="attachment-remove" title="Удалить">✖</button>' +
-      '<input name="attachment[]" type="file" class="custom-file-input" id="validatedCustomFile" lang="ru">' +
-      '<label class="custom-file-label" for="validatedCustomFile">Выберите файл...</label>' +
-      '<div class="invalid-feedback"></div>' +
-      '</div>' +
-      '</div>'
+    attachmentsIdCounter: 0, // счетчик количества прикреплённых файлов
+    attachmentsMaxItems: 5, // максимальное количество файлов, которые можно прикрепить к форме
+    attachmentsItems: [] // файлы для прикреплению к сообщению для отправки
   };
   for (var prop in config) {
     _config[prop] = config[prop];
@@ -43,6 +38,9 @@ var ProcessForm = function (config) {
   };
   this.setIsAttachments = function (value) {
     _config.isAttachments = value;
+  };
+  this.setAttachmentsMaxItems = function (value) {
+    _config.attachmentsMaxItems = value;
   };
 };
 
@@ -97,7 +95,7 @@ ProcessForm.prototype = function () {
   };
 
   // валилация формы
-  var _validateForm = function (form) {
+  var _validateForm = function (form, config) {
     var valid = true;
     $(form).find('input, textarea').not('[type="file"], [name="agree"]').each(function () {
       if (this.checkValidity()) {
@@ -107,6 +105,21 @@ ProcessForm.prototype = function () {
         valid = false;
       }
     });
+    if (config.attachmentsItems.length > 0) {
+      var files = config.attachmentsItems;
+      for (var i = 0, length = files.length; i < length; i++) {
+        // проверим размер и расширение файла
+        if (files[i].file.size > config.maxSizeFile * 1024 * 1024) {
+          $(form).find('.form-attachments__item').eq(i).attr('title', 'Размер файла больше ' + config.maxSizeFile * 1024 + 'Кбайт').addClass('is-invalid');
+          valid = false;
+        } else if (!_validateFileExtension(files[i].file.name, config.validFileExtensions)) {
+          $(form).find('.form-attachments__item').eq(i).attr('title', 'Тип не соответствует разрешённым').addClass('is-invalid');
+          valid = false;
+        } else {
+          $(form).find('.form-attachments__item').eq(i).attr('title', '').addClass('is-valid');
+        }
+      }
+    }
     return valid;
   };
 
@@ -131,7 +144,7 @@ ProcessForm.prototype = function () {
       _changeStateSubmit(form, false);
     }
     if (_this.getConfig().isAttachments) {
-      $('.attachments').html(_this.getConfig().codeFragmentAttachment);
+      $form.find('.form-attachments__item').remove();
     }
     if ($(_this.getConfig().selector + ' .progress-bar').length) {
       $(_this.getConfig().selector + ' .progress-bar')
@@ -141,86 +154,11 @@ ProcessForm.prototype = function () {
     }
   };
 
-  // изменение элемента input с type="file"
-  var _changeInputFile = function (e, _this) {
-    $(e.currentTarget)
-      .removeClass('is-invalid is-valid')
-      .parent()
-      .find('.invalid-feedback')
-      .text('');
-
-    // условия для добавления нового элемента input с type="file"
-    var isSelectFile = e.currentTarget.files.length > 0;
-    var isNextInput = $(e.currentTarget).closest('.custom-files').next('.custom-files').length === 0;
-    var isMaxInput = $(_this.getConfig().selector + ' input[name="attachment[]"]').length < $(_this.getConfig().selector + ' .attachments').attr('data-counts');
-    if (isSelectFile && isNextInput && isMaxInput) {
-      $(e.currentTarget).closest('.form-group').after(_this.getConfig().codeFragmentAttachment);
-    }
-    if ($(_this.getConfig().selector + ' input[name="attachment[]"]').length == $(_this.getConfig().selector + ' .attachments').attr('data-counts')) {
-      $(_this.getConfig().selector + ' .attachments').attr('data-max', true);
-    } else {
-      $(_this.getConfig().selector + ' .attachments').attr('data-max', false);
-    }
-    // если файл выбран, то выполняем следующие действия...
-    if (e.currentTarget.files.length > 0) {
-      // получим файл
-      var file = e.currentTarget.files[0];
-      if ($(e.target).next('label').length > 0) {
-        $(e.target).next('label').text(file.name);
-      }
-      // проверим размер и расширение файла
-      if (file.size > _this.getConfig().maxSizeFile * 1024 * 1024) {
-        $(e.currentTarget)
-          .addClass('is-invalid')
-          .parent()
-          .find('.invalid-feedback')
-          .text('*Файл не будет отправлен, т.к. его размер больше ' + _this.getConfig().maxSizeFile * 1024 + 'Кбайт');
-      } else if (!_validateFileExtension(file.name, _this.getConfig().validFileExtensions)) {
-        $(e.currentTarget)
-          .addClass('is-invalid')
-          .parent()
-          .find('.invalid-feedback')
-          .text('*Файл не будет отправлен, т.к. его тип не соответствует разрешённому');
-      } else {
-        $(e.currentTarget).addClass('is-valid');
-
-        if ($(e.currentTarget).next('p')) {
-          $(e.currentTarget).next('p').text('');
-        }
-      }
-    } else {
-      // если после изменения файл не выбран, то сообщаем об этом пользователю
-      $(e.currentTarget).next('p').text('* Файл не будет отправлен, т.к. он не выбран');
-      $(e.target).next('label').text('Выберите файл...');
-    }
-  };
-
   var _changeStateImages = function (config, state) {
     if (!config.isAttachments) {
       return;
     }
-    var
-      files = $(config.selector).find('[name="attachment[]"]'),
-      index = 0;
-    for (var i = 0; i < files.length; i++) {
-      // получить список файлов элемента input с type="file"
-      var fileList = files[i].files;
-      // если элемент не содержит файлов, то перейти к следующему
-      if (fileList.length > 0) {
-        // получить первый файл из списка
-        var file = fileList[0];
-        // проверить тип файла и размер
-        if (!_validateFileExtension(file.name, config.validFileExtensions) && (file.size < config.maxSizeFile * 1024 * 1024)) {
-          $(files[i]).prop('disabled', state);
-          $(files[i]).attr('data-index', '-1');
-        } else {
-          $(files[i]).attr('data-index', index++);
-        }
-      } else {
-        $(files[i]).prop('disabled', state);
-        $(files[i]).attr('data-index', '-1');
-      }
-    }
+    $(config.selector).find('[name="attachment[]"]').prop('disabled', state);
   };
 
   // собираем данные для отправки на сервер
@@ -228,17 +166,25 @@ ProcessForm.prototype = function () {
     _changeStateImages(config, true);
     var output = new FormData(_this);
     _changeStateImages(config, false);
+    for (var i = 0, length = config.attachmentsItems.length; i < length; i++) {
+      output.append('attachment[]', config.attachmentsItems[i].file);
+    }
     return output;
   };
 
   // отправка формы
   var _sendForm = function (_this, config) {
-    if (!_validateForm(_this)) {
+    if (!_validateForm(_this, config)) {
       if ($(_this).find('.is-invalid').length > 0) {
-        $(_this).find('.is-invalid')[0].focus();
+        if ($(_this).find('.is-invalid').hasClass('file')) {
+          $(_this).find('input[type="file"]').focus();
+        } else {
+          $(_this).find('.is-invalid')[0].focus();
+        }
       }
       return;
     }
+
     if (!$(_this).find('.form-error').hasClass('d-none')) {
       $(_this).find('.form-error').addClass('d-none');
     }
@@ -309,6 +255,8 @@ ProcessForm.prototype = function () {
     $(this).find('.form-error').removeClass('d-none');
     _changeStateSubmit(this, false);
 
+    $(_this).find('.form-attachments__item').attr('title', '').removeClass('is-valid is-invalid');
+
     // выводим ошибки которые прислал сервер
     for (var error in data) {
       if (!data.hasOwnProperty(error)) {
@@ -321,8 +269,8 @@ ProcessForm.prototype = function () {
           break;
         case 'attachment':
           $.each(data[error], function (key, value) {
-            console.log('[name="attachment[]"][data-index="' + key + '"]');
-            _setStateValidaion($(_this).find('[name="attachment[]"][data-index="' + key + '"]'), 'error', value);
+            $(_this).find('.form-attachments__item').eq(key).attr('title', value).addClass('is-invalid');
+            //_setStateValidaion($(_this).find('[name="attachment[]"][data-index="' + key + '"]'), 'error', value);
           });
           break;
         case 'log':
@@ -333,23 +281,34 @@ ProcessForm.prototype = function () {
         default:
           _setStateValidaion($(this).find('[name="' + error + '"]'), 'error', data[error]);
       }
-      // устанавливаем фокус на 1 невалидный элемент
-      if ($(this).find('.is-invalid').length > 0) {
+    }
+    // устанавливаем фокус на 1 невалидный элемент
+    if ($(this).find('.is-invalid').length > 0) {
+      if ($(this).find('.is-invalid').hasClass('file')) {
+        $(this).find('input[type="file"]').focus();
+      } else {
         $(this).find('.is-invalid')[0].focus();
       }
     }
+    $(_this).find('.form-attachments__item').not('.is-invalid').addClass('is-valid');
   };
 
   // если не получили успешный ответ от сервера 
-  var _error = function (request) {
+  var _error = function () {
     $(this).find('.form-error').removeClass('d-none');
   };
 
   // функция для инициализации 
   var _init = function () {
     this.setIsCaptcha($(this.getForm()).find('.captcha').length > 0); // имеется ли у формы секция captcha
-    this.setIsAgreement($(this.getForm()).find('.agreement').length > 0); // имеется ли у формы секция agreement
-    this.setIsAttachments($(this.getForm()).find('.attachments').length > 0); // имеется ли у формы секция attachments
+    this.setIsAgreement($(this.getForm()).find('.agreement').length > 0); // имеется ли у формы секция agreement\
+    var attachmentsElement = $(this.getForm()).find('.form-attachments');
+    if (attachmentsElement.length) {
+      this.setIsAttachments(true); // имеется ли у формы секция attachments
+      if (attachmentsElement.attr('data-count')) {
+        this.setAttachmentsMaxItems(+attachmentsElement.attr('data-count'));
+      }
+    }
     _setupListener(this);
   };
 
@@ -374,34 +333,45 @@ ProcessForm.prototype = function () {
       e.preventDefault();
       _showForm(_this);
     });
-    $(document).on('click', _this.getConfig().selector + ' .attachment-remove', function (e) {
-      var input = $(this).next('input');
-      if (input.closest('.attachments').find('input').length > 1) {
-        $(input).closest('.form-group').remove();
-      } else {
-        if (input[0].files.length > 0) {
-          input[0].value = '';
-          $(input).trigger('change');
-        }
-      }
-      $(_this.getConfig().selector + ' .attachments').attr('data-max', false);
-    });
-    $(document).on('click', _this.getConfig().selector + ' .attachment-add', function (e) {
-      var isMaxInput = $(_this.getConfig().selector + ' input[name="attachment[]"]').length < $(_this.getConfig().selector + ' .attachments').attr('data-counts');
-      if (isMaxInput) {
-        $(this).parent().find('.attachments').append(_this.getConfig().codeFragmentAttachment);
-      }
-      if ($(_this.getConfig().selector + ' input[name="attachment[]"]').length == $(_this.getConfig().selector + ' .attachments').attr('data-counts')) {
-        $(_this.getConfig().selector + ' .attachments').attr('data-max', true);
-      } else {
-        $(_this.getConfig().selector + ' .attachments').attr('data-max', false);
-      }
-    });
+    // если у формы имеется .form-attachment
     if (_this.getConfig().isAttachments) {
-      //$('#' + this.idForm + ' .countFiles').text(this.countFiles);
-      // добавление нового элемента input с type="file"
+      // события для удаления прикреплённого файла
+      $(document).on('click', _this.getConfig().selector + ' .form-attachments__item-link', function () {
+        var file = $(this).closest('.form-attachments__item');
+        var fileId = +$(this).attr('data-id');
+        for (var i = 0, length = _this.getConfig().attachmentsItems.length; i < length; i++) {
+          if (_this.getConfig().attachmentsItems[i].id === fileId) {
+            _this.getConfig().attachmentsItems.splice(i, 1);
+            break;
+          }
+        }
+        file.remove();
+      });
+      // событие при изменении элемента input с type="file" (name="attachment[])
       $(document).on('change', _this.getConfig().selector + ' input[name="attachment[]"]', function (e) {
-        _changeInputFile(e, _this);
+        var output = [];
+        for (var i = 0, length = e.target.files.length; i < length; i++) {
+          if (_this.getConfig().attachmentsItems.length === _this.getConfig().attachmentsMaxItems) {
+            e.target.value = null;
+            break;
+          }
+          var file = e.target.files[i];
+          var fileId = _this.getConfig().attachmentsIdCounter++;
+          _this.getConfig().attachmentsItems.push({
+            id: fileId,
+            file: file
+          });
+          var removeLink = '<div class="form-attachments__item">' +
+            '<div class="form-attachments__item-wrapper">' +
+            '<div class="form-attachments__item-name">' + file.name + '</div>' +
+            '<div class="form-attachments__item-size">' + (file.size / 1024).toFixed(1) + 'Кб' + '</div>' +
+            '<div class="form-attachments__item-link" data-id=' + fileId + '>×</div>' +
+            '</div>' +
+            '</div>';
+          output.push(removeLink);
+        }
+        $('.form-attachments__items').append(output.join(""));
+        e.target.value = null;
       });
     }
   };

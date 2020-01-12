@@ -23,10 +23,6 @@
       background-size: 100% 100%;
     }
 
-    .custom-file-input:lang(ru)~.custom-file-label::after {
-      content: "Обзор";
-    }
-
     button[type="submit"]::before {
       content: "";
       position: absolute;
@@ -39,38 +35,104 @@
       background-size: 100% 100%;
     }
 
-    .attachments .custom-file-label {
-      right: 46px;
+    .form-attachments__wrapper {
+      position: relative;
+      background: #fff;
+      border: 3px dashed #ccc;
+      border-radius: 5px;
+      min-height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
     }
 
-    .attachment-remove {
+    .form-attachments__wrapper input {
       position: absolute;
-      right: 0;
       top: 0;
-      display: inline-block;
-      height: calc(1.5em + .75rem + 2px);
-      padding: .375rem .5rem;
-      line-height: 1.5;
-      color: #495057;
-      background-color: #e9ecef;
-      border-radius: .25rem;
-      user-select: none;
-      border: 1px solid #ced4da;
-      font-weight: 400;
-      z-index: 3;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      filter: alpha(opacity=0);
+      opacity: 0;
+      outline: none;
+      cursor: pointer;
+      display: block;
     }
 
-    .attachment-remove:hover {
-      background-color: #d3d6d9;
+    .form-attachments__description {
+      width: 100%;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px 10px;
     }
 
-    .attachment-remove:focus {
-      outline: 0;
-      box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, .25);
+    .form-attachments__description> :first-child {
+      font-weight: 700;
     }
 
-    .attachments[data-max="true"] ~ .attachment-add {
-      display: none;
+    .form-attachments__description> :last-child {
+      color: #6c757d;
+      font-size: 0.8125rem;
+    }
+
+    .form-attachments__items {
+      display: flex;
+      flex-wrap: wrap;
+      flex: 0 0 100%;
+    }
+
+    .form-attachments__item {
+      flex: 0 0 25%;
+      overflow: hidden;
+      padding: 4px;
+      font-size: 0.75rem;
+    }
+
+    .form-attachments__item-wrapper {
+      border: 1px solid #e0e0e0;
+      background: #f5f5f5;
+      padding: 26px 4px;
+      border-radius: 4px;
+      position: relative;
+      min-height: 100%;
+    }
+
+    .form-attachments__item-size {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 3px 6px;
+      font-weight: bold;
+      text-align: right;
+    }
+
+    .form-attachments__item-link {
+      position: absolute;
+      top: 0;
+      right: 0;
+      padding: 0 .375rem 0.5rem;
+      cursor: pointer;
+      float: right;
+      font-size: 1.5rem;
+      font-weight: 700;
+      line-height: 1;
+      color: #000;
+      text-shadow: 0 1px 0 #fff;
+      opacity: .5;
+    }
+
+    .form-attachments__item.is-valid .form-attachments__item-wrapper {
+      border-color: #28a745;
+      background-color: #f8fcf9;
+    }
+
+    .form-attachments__item.is-invalid .form-attachments__item-wrapper {
+      border-color: #dc3545;
+      background-color: #fefbfb;
     }
   </style>
 </head>
@@ -117,26 +179,22 @@
           </div>
 
           <!-- Файлы, для прикрепления к форме -->
-          <div class="form-group files">
-            <p style="font-weight: 700; margin-bottom: 0;">Прикрепить к сообщению файлы (до <span
-                class="countFiles">5</span>):</p>
-            <p class="text-secondary">jpg, jpeg, bmp, gif, png (до 512 Кбайт)</p>
-            <div class="attachments" data-counts="5">
-              <div class="form-group">
-                <div class="custom-file">
-                  <button type="button" class="attachment-remove" title="Удалить">✖</button>
-                  <input name="attachment[]" type="file" class="custom-file-input" id="validatedCustomFile" lang="ru">
-                  <label class="custom-file-label" for="validatedCustomFile">Выберите файл...</label>
-                  <div class="invalid-feedback"></div>
+          <div class="form-group form-attachments" data-count="5">
+            <div class="form-attachments__wrapper">
+              <input type="file" name="attachment[]" multiple>
+              <div class="form-attachments__items">
+                <div class="form-attachments__description">
+                  <div>Нажмите чтобы добавить файлы к сообщению.</div>
+                  <div>Можно добавить до 5 файлов с разрешением jpg, jpeg, bmp, gif, png и размером до 512 Кбайт.</div>
                 </div>
               </div>
             </div>
-            <button type="button" class="btn btn-light attachment-add">➕ Добавить</button>
           </div>
 
           <!-- Капча -->
           <div class="form-group captcha">
-            <img class="img-captcha" src="/feedback/captcha/captcha.php" data-src="/feedback/captcha/captcha.php" alt="Капча">
+            <img class="img-captcha" src="/feedback/captcha/captcha.php" data-src="/feedback/captcha/captcha.php"
+              alt="Капча">
             <div class="btn btn-light position-relative refresh-captcha">Обновить</div>
             <div class="form-group">
               <label for="captcha" class="control-label">Код, показанный на изображении</label>
