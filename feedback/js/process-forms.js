@@ -38,7 +38,7 @@ ProcessForm.prototype = function () {
     // обновление капчи
     var _refreshCaptcha = function (_this) {
         var
-            captchaImg = _this._form.find('.img-captcha'),
+            captchaImg = _this._form.find('.form-captcha__image'),
             captchaSrc = captchaImg.attr('data-src'),
             captchaPrefix = captchaSrc.indexOf('?id') !== -1 ? '&rnd=' : '?rnd=',
             captchaNewSrc = captchaSrc + captchaPrefix + (new Date()).getTime();
@@ -276,9 +276,9 @@ ProcessForm.prototype = function () {
     // функция для инициализации
     var _init = function () {
         // устанавливаем значение свойства _isCaptchaSection в завимости от того имеется ли у формы секция с капчей или нет
-        this._isCaptchaSection = this._form.find('.captcha').length > 0;
+        this._isCaptchaSection = this._form.find('.form-captcha').length > 0;
         // устанавливаем значение свойства _isAgreementSection в завимости от того имеется ли у формы секция с пользовательским соглашением или нет
-        this._isAgreementSection = this._form.find('.agreement').length > 0;
+        this._isAgreementSection = this._form.find('.form-agreement').length > 0;
         // устанавливаем значения свойств _isAttachmentsSection и _attachmentsMaxItems в завимости от того имеется ли у формы секция с секцией для добавления к ней файлов
         var formAttachments = this._form.find('.form-attachments');
         if (formAttachments.length) {
@@ -303,7 +303,7 @@ ProcessForm.prototype = function () {
             e.preventDefault();
             _sendForm(_this);
         });
-        $(document).on('click', _this._settings.selector + ' .refresh-captcha', function (e) {
+        $(document).on('click', _this._settings.selector + ' .form-captcha__refresh', function (e) {
             e.preventDefault();
             _refreshCaptcha(_this);
         });
@@ -312,7 +312,7 @@ ProcessForm.prototype = function () {
             _showForm(_this);
         });
         // если у формы имеется .form-attachment
-        if (_this._isAgreementSection) {
+        if (_this._isAttachmentsSection) {
             // события для удаления добавленного к форме файла
             $(document).on('click', _this._settings.selector + ' .form-attachments__item-link', function () {
                 var

@@ -11,7 +11,7 @@ session_start();
 
 $id = 'captcha';
 if (isset($_GET['id'])) {
-    $id = filter_var($_GET['id'], FILTER_SANITIZE_STRING);
+  $id = filter_var($_GET['id'], FILTER_SANITIZE_STRING);
 }
 
 // присваиваем PHP переменной captchastring строку символов
