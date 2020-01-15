@@ -307,7 +307,7 @@ ProcessForm.prototype = function () {
             e.preventDefault();
             _refreshCaptcha(_this);
         });
-        $(document).on('click', '[data-reloadform="' + _this._settings.selector + '"]', function (e) {
+        $(document).on('click', '[data-target="' + _this._settings.selector + '"]', function (e) {
             e.preventDefault();
             _showForm(_this);
         });
