@@ -90,13 +90,13 @@ ProcessForm.prototype = function () {
             for (var i = 0, length = files.length; i < length; i++) {
                 // проверим размер и расширение файла
                 if (files[i].file.size > _this._settings.attachmentsMaxFileSize * 1024) {
-                    _this._form.find('.form-attachments__item').eq(i).attr('title', 'Размер файла больше ' + _this._settings.attachmentsMaxFileSize + 'Кб').addClass('is-invalid');
+                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').attr('title', 'Размер файла больше ' + _this._settings.attachmentsMaxFileSize + 'Кб').addClass('is-invalid');
                     valid = false;
                 } else if (!_validateFileExtension(files[i].file.name, _this._settings.attachmentsFileExt)) {
-                    _this._form.find('.form-attachments__item').eq(i).attr('title', 'Тип не соответствует разрешённым').addClass('is-invalid');
+                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').eq(i).attr('title', 'Тип не соответствует разрешённым').addClass('is-invalid');
                     valid = false;
                 } else {
-                    _this._form.find('.form-attachments__item').eq(i).attr('title', '').addClass('is-valid');
+                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').eq(i).attr('title', '').addClass('is-valid');
                 }
             }
         }
@@ -245,7 +245,7 @@ ProcessForm.prototype = function () {
                     break;
                 case 'attachment':
                     $.each(data[error], function (key, value) {
-                        _this._form.find('.form-attachments__item').eq(key).attr('title', value).addClass('is-invalid');
+                        _this._form.find('.form-attachments__item[data-id="' + _this._attachmentsItems[key].id + '"]').attr('title', value).addClass('is-invalid');
                     });
                     break;
                 case 'log':
@@ -329,11 +329,11 @@ ProcessForm.prototype = function () {
             });
             // событие при изменении элемента input с type="file" (name="attachment[])
             $(document).on('change', _this._settings.selector + ' input[name="attachment[]"]', function (e) {
-                var file, fileId, removeLink, output = [];
+                var file, fileId, removeLink;
 
                 for (var i = 0, length = e.target.files.length; i < length; i++) {
                     if (_this._attachmentsItems.length === _this._attachmentsMaxItems) {
-                        e.target.value = null;
+                        e.target.value = '';
                         break;
                     }
                     fileId = _this._attachmentsIdCounter++;
@@ -345,20 +345,19 @@ ProcessForm.prototype = function () {
                     if (file.type.match(/image.*/)) {
                         var reader = new FileReader();
                         reader.readAsDataURL(file);
-                        reader.addEventListener('load', function (e) {
-                            //console.log(fileId);
-                            //'<img src="' + e.target.result + '" style="display: block; width: 100%; height: auto;">' +
-                            removeLink = '<div class="form-attachments__item" data-id="' + fileId + '">' +
-                                '<div class="form-attachments__item-wrapper">' +
-                                '<img class="form-attachments__item-image" src="' + e.target.result + '">' +
-                                '<div class="form-attachments__item-name">' + file.name + '</div>' +
-                                '<div class="form-attachments__item-size">' + (file.size / 1024).toFixed(1) + 'Кб' + '</div>' +
-                                '<div class="form-attachments__item-link" data-id="' + fileId + '">×</div>' +
-                                '</div>' +
-                                '</div>';
-                            _this._form.find('.form-attachments__items').append(removeLink);
-                        });
-
+                        (function (file, fileId) {
+                            reader.addEventListener('load', function (e) {
+                                var removeLink = '<div class="form-attachments__item" data-id="' + fileId + '">' +
+                                    '<div class="form-attachments__item-wrapper">' +
+                                    '<img class="form-attachments__item-image" src="' + e.target.result + '" alt="' + file.name + '">' +
+                                    '<div class="form-attachments__item-name">' + file.name + '</div>' +
+                                    '<div class="form-attachments__item-size">' + (file.size / 1024).toFixed(1) + 'Кб' + '</div>' +
+                                    '<div class="form-attachments__item-link" data-id="' + fileId + '">×</div>' +
+                                    '</div>' +
+                                    '</div>';
+                                _this._form.find('.form-attachments__items').append(removeLink);
+                            });
+                        })(file, fileId);
                         continue;
                     }
                     removeLink = '<div class="form-attachments__item" data-id="' + fileId + '">' +
@@ -368,10 +367,8 @@ ProcessForm.prototype = function () {
                         '<div class="form-attachments__item-link" data-id="' + fileId + '">×</div>' +
                         '</div>' +
                         '</div>';
-                    //output.push(removeLink);
                     _this._form.find('.form-attachments__items').append(removeLink);
                 }
-                //_this._form.find('.form-attachments__items').append(output.join(""));
                 e.target.value = null;
             });
         }
