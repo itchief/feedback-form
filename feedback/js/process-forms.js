@@ -330,6 +330,7 @@ ProcessForm.prototype = function () {
             // событие при изменении элемента input с type="file" (name="attachment[])
             $(document).on('change', _this._settings.selector + ' input[name="attachment[]"]', function (e) {
                 var file, fileId, removeLink, output = [];
+
                 for (var i = 0, length = e.target.files.length; i < length; i++) {
                     if (_this._attachmentsItems.length === _this._attachmentsMaxItems) {
                         e.target.value = null;
@@ -341,16 +342,36 @@ ProcessForm.prototype = function () {
                         id: fileId,
                         file: file
                     });
-                    removeLink = '<div class="form-attachments__item">' +
+                    if (file.type.match(/image.*/)) {
+                        var reader = new FileReader();
+                        reader.readAsDataURL(file);
+                        reader.addEventListener('load', function (e) {
+                            //console.log(fileId);
+                            //'<img src="' + e.target.result + '" style="display: block; width: 100%; height: auto;">' +
+                            removeLink = '<div class="form-attachments__item" data-id="' + fileId + '">' +
+                                '<div class="form-attachments__item-wrapper">' +
+                                '<img class="form-attachments__item-image" src="' + e.target.result + '">' +
+                                '<div class="form-attachments__item-name">' + file.name + '</div>' +
+                                '<div class="form-attachments__item-size">' + (file.size / 1024).toFixed(1) + 'Кб' + '</div>' +
+                                '<div class="form-attachments__item-link" data-id="' + fileId + '">×</div>' +
+                                '</div>' +
+                                '</div>';
+                            _this._form.find('.form-attachments__items').append(removeLink);
+                        });
+
+                        continue;
+                    }
+                    removeLink = '<div class="form-attachments__item" data-id="' + fileId + '">' +
                         '<div class="form-attachments__item-wrapper">' +
                         '<div class="form-attachments__item-name">' + file.name + '</div>' +
                         '<div class="form-attachments__item-size">' + (file.size / 1024).toFixed(1) + 'Кб' + '</div>' +
-                        '<div class="form-attachments__item-link" data-id=' + fileId + '>×</div>' +
+                        '<div class="form-attachments__item-link" data-id="' + fileId + '">×</div>' +
                         '</div>' +
                         '</div>';
-                    output.push(removeLink);
+                    //output.push(removeLink);
+                    _this._form.find('.form-attachments__items').append(removeLink);
                 }
-                _this._form.find('.form-attachments__items').append(output.join(""));
+                //_this._form.find('.form-attachments__items').append(output.join(""));
                 e.target.value = null;
             });
         }

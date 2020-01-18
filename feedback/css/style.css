@@ -261,6 +261,26 @@ textarea.form-control {
     border-radius: 4px;
     position: relative;
     min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-attachments__item-image {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin-top: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-attachments__item-name {
+    margin-top: auto;
+    max-width: 100%;
+    overflow: hidden;
+    word-wrap: break-word;
 }
 
 .form-attachments__item-size {
