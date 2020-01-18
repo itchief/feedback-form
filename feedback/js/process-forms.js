@@ -93,10 +93,10 @@ ProcessForm.prototype = function () {
                     _this._form.find('.form-attachments__item[data-id="' + i + '"]').attr('title', 'Размер файла больше ' + _this._settings.attachmentsMaxFileSize + 'Кб').addClass('is-invalid');
                     valid = false;
                 } else if (!_validateFileExtension(files[i].file.name, _this._settings.attachmentsFileExt)) {
-                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').eq(i).attr('title', 'Тип не соответствует разрешённым').addClass('is-invalid');
+                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').attr('title', 'Тип не соответствует разрешённым').addClass('is-invalid');
                     valid = false;
                 } else {
-                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').eq(i).attr('title', '').addClass('is-valid');
+                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').attr('title', '').addClass('is-valid');
                 }
             }
         }
