@@ -152,6 +152,7 @@ ProcessForm.prototype = function () {
 
     // отправка формы
     var _sendForm = function (_this) {
+        $(document).trigger('beforeSubmit', [_this._form]);
         if (!_validateForm(_this)) {
             if (_this._form.find('.is-invalid').length > 0) {
                 if (_this._form.find('.is-invalid').hasClass('file')) {
