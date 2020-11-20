@@ -112,23 +112,20 @@
 
   <script src="/feedback/js/process-forms-without-jquery.js"></script>
   <script>
-    //после загрузки DOM
-    $(function () {
-      /*
-      Параметры указываются в виде:
-      {
-      ключ: значение;
-      ключ: значение;
-      ...
-      }
-      Основные параметры
-      selector - селектор формы (по умолчанию '#feedback-form')
-      attachmentsMaxFileSize - максимальный размер файла в Кбайтах (по умолчанию 512)
-      attachmentsFileExt - допустимые расширения файлов для загрузки (по умолчанию 'jpg','jpeg','bmp','gif','png')
-      isUseDefaultSuccessMessage - отображать дефолтное сообщение после отправки
-      */
-      new ProcessForm();
-    });
+    /*
+    Параметры указываются в виде:
+    {
+    ключ: значение;
+    ключ: значение;
+    ...
+    }
+    Основные параметры
+    selector - селектор формы (по умолчанию '#feedback-form')
+    attachmentsMaxFileSize - максимальный размер файла в Кбайтах (по умолчанию 512)
+    attachmentsFileExt - допустимые расширения файлов для загрузки (по умолчанию 'jpg','jpeg','bmp','gif','png')
+    isUseDefaultSuccessMessage - отображать дефолтное сообщение после отправки
+    */
+    new ProcessForm();
   </script>
 
 </body>
