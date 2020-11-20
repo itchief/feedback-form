@@ -110,7 +110,6 @@
 
   </div>
 
-  <script src="/feedback/vendors/jquery/jquery-3.4.1.min.js"></script>
   <script src="/feedback/js/process-forms-without-jquery.js"></script>
   <script>
     //после загрузки DOM
@@ -128,9 +127,7 @@
       attachmentsFileExt - допустимые расширения файлов для загрузки (по умолчанию 'jpg','jpeg','bmp','gif','png')
       isUseDefaultSuccessMessage - отображать дефолтное сообщение после отправки
       */
-      var form1 = new ProcessForm();
-      form1.init();
-
+      new ProcessForm();
     });
   </script>
 
