@@ -1,6 +1,8 @@
 # Security notices relating to PHPMailer
 
-Please disclose any vulnerabilities found responsibly - report any security problems found to the maintainers privately.
+Please disclose any security issues or vulnerabilities found through [Tidelift's coordinated disclosure system](https://tidelift.com/security) or to the maintainers privately.
+
+PHPMailer versions 6.1.5 and earlier contain an output escaping bug that occurs in `Content-Type` and `Content-Disposition` when filenames passed into `addAttachment` and other methods that accept attachment names contain double quote characters, in contravention of RFC822 3.4.1. No specific vulnerability has been found relating to this, but it could allow file attachments to bypass attachment filters that are based on matching filename extensions. Recorded as [CVE-2020-13625](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2020-13625). Reported by Elar Lang of Clarified Security.
 
 PHPMailer versions prior to 6.0.6 and 5.2.27 are vulnerable to an object injection attack by passing `phar://` paths into `addAttachment()` and other functions that may receive unfiltered local paths, possibly leading to RCE. Recorded as [CVE-2018-19296](https://web.nvd.nist.gov/view/vuln/detail?vulnId=CVE-2018-19296). See [this article](https://knasmueller.net/5-answers-about-php-phar-exploitation) for more info on this type of vulnerability. Mitigated by blocking the use of paths containing URL-protocol style prefixes such as `phar://`. Reported by Sehun Oh of cyberone.kr.
 
