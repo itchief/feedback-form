@@ -5,14 +5,13 @@
  * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
  */
 
-'use strict';
-
-var ProcessForm = function (settings) {
+class ProcessForm {
+  constructor(settings) {
     this._settings = {
-        selector: '#feedback-form', // дефолтный селектор
-        attachmentsMaxFileSize: 512, // дефолтный максимальный размер файла в Кб
-        attachmentsFileExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png'], // дефолтные допустимые расширения для файлов
-        isUseDefaultSuccessMessage: true // отображать дефолтное сообщение об успешной отправки формы
+      selector: '#feedback-form', // дефолтный селектор
+      attachmentsMaxFileSize: 512, // дефолтный максимальный размер файла в Кб
+      attachmentsFileExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png'], // дефолтные допустимые расширения для файлов
+      isUseDefaultSuccessMessage: true, // отображать дефолтное сообщение об успешной отправки формы
     };
     this._isCaptchaSection = false; // имеется ли в форме блок с капчей
     this._isAgreementSection = false; // имеется ли в форме блок с пользовательским соглашением
@@ -22,360 +21,414 @@ var ProcessForm = function (settings) {
     this._attachmentsItems = []; // переменная, хранящая массив файлов, которые нужно прекрепить к форме
 
     for (var propName in settings) {
-        if (settings.hasOwnProperty(propName)) {
-            this._settings[propName] = settings[propName];
-        }
+      if (settings.hasOwnProperty(propName)) {
+        this._settings[propName] = settings[propName];
+      }
     }
-    this._form = $(this._settings.selector).eq(0);
-};
+    this._$form = document.querySelector(this._settings.selector);
+    this._elForm = this._$form;
+    // инициализация формы
+    this._init();
+  }
 
-ProcessForm.prototype = function () {
-    // переключить во включенное или выключенное состояние кнопку submit
-    var _changeStateSubmit = function (_this, state) {
-        _this._form.find('[type="submit"]').prop('disabled', state);
-    };
+  // функция для проверки расширения файла
+  static validateFileExtension(filename, validFileExtensions) {
+    // получаем расширение файла
+    var fileExtension = filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+    // если есть расширение, то проверяем соответствует ли оно допустимому
+    if (fileExtension) {
+      for (var i = 0; i <= validFileExtensions.length; i++) {
+        if (validFileExtensions[i] === fileExtension.toLowerCase()) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 
-    // обновление капчи
-    var _refreshCaptcha = function (_this) {
-        var
-            captchaImg = _this._form.find('.form-captcha__image'),
-            captchaSrc = captchaImg.attr('data-src'),
-            captchaPrefix = captchaSrc.indexOf('?id') !== -1 ? '&rnd=' : '?rnd=',
-            captchaNewSrc = captchaSrc + captchaPrefix + (new Date()).getTime();
-        captchaImg.attr('src', captchaNewSrc);
-    };
+  // переключение состояния disabled у кнопки submit
+  _changeStateSubmit(state) {
+    this._$form.querySelector('[type="submit"]').disabled = state;
+  }
 
-    // изменение состояния элемента формы (success, error, clear)
-    var _setStateValidaion = function (input, state, message) {
-        input = $(input);
-        if (state === 'error') {
-            input
-                .removeClass('is-valid').addClass('is-invalid')
-                .siblings('.invalid-feedback').text(message);
-        } else if (state === 'success') {
-            input.removeClass('is-invalid').addClass('is-valid');
+  // обновление капчи
+  _refreshCaptcha() {
+    var captchaImg = this._elForm.querySelector('.form-captcha__image');
+    var captchaSrc = captchaImg.getAttribute('data-src');
+    var captchaPrefix = captchaSrc.indexOf('?id') !== -1 ? '&rnd=' : '?rnd=';
+    var captchaNewSrc = captchaSrc + captchaPrefix + new Date().getTime();
+    captchaImg.setAttribute('src', captchaNewSrc);
+  }
+
+  // изменение состояния элемента формы (success, error, clear)
+  _setStateValidaion(input, state, message) {
+    if (state === 'error') {
+      input.classList.remove('is-valid');
+      input.classList.add('is-invalid');
+      input.parentElement.querySelector('.invalid-feedback').textContent = message;
+    } else if (state === 'success') {
+      input.classList.remove('is-invalid');
+      input.classList.add('is-valid');
+    } else {
+      input.classList.remove('is-valid');
+      input.classList.remove('is-invalid');
+    }
+  }
+
+  // валидация формы
+  _validateForm() {
+    var valid = true;
+    var $elements = this._$form.querySelectorAll('input, textarea');
+    for (var i = 0; i < $elements.length; i++) {
+      if ($elements[i].type === 'file' || $elements[i].name === 'agree') {
+        continue;
+      }
+      if ($elements[i].checkValidity()) {
+        this._setStateValidaion($elements[i], 'success');
+      } else {
+        this._setStateValidaion($elements[i], 'error', $elements[i].validationMessage);
+        valid = false;
+      }
+    }
+
+    // для теста >
+    if (this._attachmentsItems.length === 0) {
+      var files = this._attachmentsItems;
+      for (var i = 0, length = files.length; i < length; i++) {
+        // проверим размер и расширение файла
+        if (files[i].file.size > this._settings.attachmentsMaxFileSize * 1024) {
+          var attach = this._$form.querySelector('.form-attachments__item[data-id="' + i + '"]');
+          attach.setAttribute(
+            'title',
+            'Размер файла больше ' + this._settings.attachmentsMaxFileSize + 'Кб'
+          );
+          attach.classList.add('is-invalid');
+          valid = false;
+        } else if (
+          !ProcessForm.validateFileExtension(files[i].file.name, this._settings.attachmentsFileExt)
+        ) {
+          var attach = this._$form.querySelector('.form-attachments__item[data-id="' + i + '"]');
+          attach.setAttribute('title', 'Тип не соответствует разрешённым');
+          attach.classList.add('is-invalid');
+          valid = false;
         } else {
-            input.removeClass('is-valid is-invalid');
+          var attach = this._$form.querySelector('.form-attachments__item[data-id="' + i + '"]');
+          if (attach) {
+            attach.setAttribute('title', '');
+            attach.classList.add('is-valid');
+          }
         }
-    };
+      }
+    }
+    return valid;
+  }
 
-    // метод, возвращающий результат проверки расширения файла допустимому
-    var _validateFileExtension = function (filename, validFileExtensions) {
-        // получаем расширение файла
-        var fileExtension = filename.slice((filename.lastIndexOf(".") - 1 >>> 0) + 2);
-        // если есть расширение, то проверяем соотвествует ли оно допустимому
-        if (fileExtension) {
-            for (var i = 0; i <= validFileExtensions.length; i++) {
-                if (validFileExtensions[i] === fileExtension.toLowerCase()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
+  _showForm() {
+    this._$form.querySelector('.form-error').classList.add('d-none');
+    var $resultSuccess = this._$form.parentElement.querySelector('.form-result-success');
+    $resultSuccess.classList.add('d-none');
+    $resultSuccess.classList.remove('d-flex');
+    this._$form.reset();
+    var $elements = this._$form.querySelectorAll('input, textarea');
+    for (var i = 0, length = $elements.length; i < length; i++) {
+      this._setStateValidaion($elements[i], 'clear');
+    }
+    if (this._isCaptchaSection) {
+      this._refreshCaptcha();
+    }
+    if (this._isAgreementSection) {
+      this._changeStateSubmit(true);
+    } else {
+      this._changeStateSubmit(false);
+    }
 
-    // валилация формы
-    var _validateForm = function (_this) {
-        var valid = true;
-        _this._form.find('input, textarea').not('[type="file"], [name="agree"]').each(function () {
-            if (this.checkValidity()) {
-                _setStateValidaion(this, 'success');
-            } else {
-                _setStateValidaion(this, 'error', this.validationMessage);
-                valid = false;
-            }
-        });
-        if (_this._attachmentsItems.length > 0) {
-            var files = _this._attachmentsItems;
-            for (var i = 0, length = files.length; i < length; i++) {
-                // проверим размер и расширение файла
-                if (files[i].file.size > _this._settings.attachmentsMaxFileSize * 1024) {
-                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').attr('title', 'Размер файла больше ' + _this._settings.attachmentsMaxFileSize + 'Кб').addClass('is-invalid');
-                    valid = false;
-                } else if (!_validateFileExtension(files[i].file.name, _this._settings.attachmentsFileExt)) {
-                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').attr('title', 'Тип не соответствует разрешённым').addClass('is-invalid');
-                    valid = false;
-                } else {
-                    _this._form.find('.form-attachments__item[data-id="' + i + '"]').attr('title', '').addClass('is-valid');
-                }
-            }
-        }
-        return valid;
-    };
+    // удаление attachment items
+    var $attachs = this._$form.querySelectorAll('.form-attachments__item');
+    if ($attachs.length > 0) {
+      for (var i = 0, length = $attachs.length; i < length; i++) {
+        $attachs[i].parentElement.removeChild($attachs[i]);
+      }
+    }
 
-    var _showForm = function (_this) {
-        if (!_this._form.find('.form-error').hasClass('d-none')) {
-            _this._form.find('.form-error').addClass('d-none');
-        }
-        _this._form.siblings('.form-result-success').addClass('d-none').removeClass('d-flex');
-        _this._form[0].reset();
-        _this._form.find('input, textarea').each(function () {
-            _setStateValidaion(this, 'clear');
-        });
-        if (_this._isCaptchaSection) {
-            _refreshCaptcha(_this);
-        }
-        if (_this._isAgreementSection) {
-            _changeStateSubmit(_this, true);
-        } else {
-            _changeStateSubmit(_this, false);
-        }
-        if (_this._isAttachmentsSection) {
-            _this._form.find('.form-attachments__item').remove();
-        }
-        if (_this._form.find('.progress-bar').length) {
-            _this._form.find('.progress-bar')
-                .attr('aria-valuenow', '0')
-                .width('0')
-                .find('.sr-only').text('0%');
-        }
-    };
+    if (this._$form.querySelector('.progress-bar').length) {
+      var $progressBar = this._$form.querySelector('.progress-bar');
+      $progressBar.setAttribute('aria-valuenow', '0');
+      $progressBar.style.width = 0;
+    }
+  }
 
-    var _changeStateImages = function (_this, state) {
-        if (!_this._isAttachmentsSection) {
-            return;
-        }
-        _this._form.find('[name="attachment[]"]').prop('disabled', state);
-    };
+  // переключение disabled для name="attachment[]"
+  _disabledAttach(state) {
+    var $attach = this._$form.querySelector('[name="attachment[]"]');
+    if ($attach) {
+      $attach.disabled = state;
+    }
+  }
 
-    // собираем данные для отправки на сервер
-    var _collectData = function (_this) {
-        var output;
-        _changeStateImages(_this, true);
-        output = new FormData(_this._form[0]);
-        _changeStateImages(_this, false);
-        for (var i = 0, length = _this._attachmentsItems.length; i < length; i++) {
-            output.append('attachment[]', _this._attachmentsItems[i].file);
-        }
-        return output;
-    };
+  // собираем данные для отправки на сервер
+  _collectData() {
+    var data;
+    var $attachs = this._attachmentsItems;
+    // отключаем добавление данных из name="attachment[]" в FormData
+    this._disabledAttach(true);
+    data = new FormData(this._$form);
+    // включаем доступность name="attachment[]"
+    this._disabledAttach(false);
+    // добавляем данные из name="attachment[]" в FormData
+    for (var i = 0, length = $attachs.length; i < length; i++) {
+      data.append('attachment[]', $attachs[i].file);
+    }
+    return data;
+  };
 
-    // отправка формы
-    var _sendForm = function (_this) {
-        $(document).trigger('beforeSubmit', [_this._form]);
-        if (!_validateForm(_this)) {
-            if (_this._form.find('.is-invalid').length > 0) {
-                if (_this._form.find('.is-invalid').hasClass('file')) {
-                    _this._form.find('input[type="file"]').focus();
-                } else {
-                    _this._form.find('.is-invalid')[0].focus();
-                }
-            }
-            return;
-        }
-
-        if (!_this._form.find('.form-error').hasClass('d-none')) {
-            _this._form.find('.form-error').addClass('d-none');
-        }
-
-        $.ajax({
-            context: _this,
-            type: "POST",
-            url: _this._form.attr('action'),
-            data: _collectData(_this), // данные для отправки на сервер
-            contentType: false,
-            processData: false,
-            cache: false,
-            beforeSend: function () {
-                _changeStateSubmit(_this, true);
-            },
-            xhr: function () {
-                var myXhr = $.ajaxSettings.xhr();
-                if (_this._form.find('.progress').hasClass('d-none')) {
-                    _this._form.find('.progress').removeClass('d-none');
-                }
-                if (myXhr.upload) {
-                    myXhr.upload.addEventListener('progress', function (event) {
-                        // если известно количество байт для пересылки
-                        if (event.lengthComputable) {
-                            // получаем общее количество байт для пересылки
-                            var total = event.total;
-                            // получаем какое количество байт уже отправлено
-                            var loaded = event.loaded;
-                            // определяем процент отправленных данных на сервер
-                            var progress = ((loaded * 100) / total).toFixed(1);
-                            // обновляем состояние прогресс бара Bootstrap
-                            var progressBar = _this._form.find('.progress-bar');
-                            progressBar.attr('aria-valuenow', progress);
-                            progressBar.width(progress + '%');
-                            progressBar.find('.sr-only').text(progress + '%');
-                        }
-                    }, false);
-                }
-                return myXhr;
-            }
-        })
-            .done(_success)
-            .fail(_error)
-    };
-
+  _successXHR(data) {
     // при получении успешного ответа от сервера
-    var _success = function (data) {
-        var _this = this;
-        if (_this._form.find('.progress').length) {
-            _this._form
-                .find('.progress').addClass('d-none')
-                .find('.progress-bar').attr('aria-valuenow', '0').width('0')
-                .find('.sr-only').text('0%');
-        }
-        // при успешной отправки формы
-        if (data.result === "success") {
-            $(document).trigger('pf_success', {data: this});
-            if (_this._settings.isUseDefaultSuccessMessage) {
-                _this._form.parent().find('.form-result-success')
-                    .removeClass('d-none')
-                    .addClass('d-flex');
-            }
-            return;
-        }
-        // если произошли ошибки при отправке
-        _this._form.find('.form-error').removeClass('d-none');
-        _changeStateSubmit(this, false);
+    var _this = this;
 
-        _this._form.find('.form-attachments__item').attr('title', '').removeClass('is-valid is-invalid');
-
-        // выводим ошибки которые прислал сервер
-        for (var error in data) {
-            if (!data.hasOwnProperty(error)) {
-                continue;
-            }
-            switch (error) {
-                case 'captcha':
-                    _refreshCaptcha(_this);
-                    _setStateValidaion(_this._form.find('[name="' + error + '"]'), 'error', data[error]);
-                    break;
-                case 'attachment':
-                    $.each(data[error], function (key, value) {
-                        _this._form.find('.form-attachments__item[data-id="' + _this._attachmentsItems[key].id + '"]').attr('title', value).addClass('is-invalid');
-                    });
-                    break;
-                case 'log':
-                    $.each(data[error], function (key, value) {
-                        console.log(value);
-                    });
-                    break;
-                default:
-                    _setStateValidaion(_this._form.find('[name="' + error + '"]'), 'error', data[error]);
-            }
-        }
-        // устанавливаем фокус на 1 невалидный элемент
-        if (_this._form.find('.is-invalid').length > 0) {
-            if (_this._form.find('.is-invalid').hasClass('file')) {
-                _this._form.find('input[type="file"]').focus();
-            } else {
-                _this._form.find('.is-invalid')[0].focus();
-            }
-        }
-        _this._form.find('.form-attachments__item').not('.is-invalid').addClass('is-valid');
-    };
-
-    // если не получили успешный ответ от сервера
-    var _error = function () {
-        this._form.find('.form-error').removeClass('d-none');
-    };
-
-    // функция для инициализации
-    var _init = function () {
-        // устанавливаем значение свойства _isCaptchaSection в завимости от того имеется ли у формы секция с капчей или нет
-        this._isCaptchaSection = this._form.find('.form-captcha').length > 0;
-        // устанавливаем значение свойства _isAgreementSection в завимости от того имеется ли у формы секция с пользовательским соглашением или нет
-        this._isAgreementSection = this._form.find('.form-agreement').length > 0;
-        // устанавливаем значения свойств _isAttachmentsSection и _attachmentsMaxItems в завимости от того имеется ли у формы секция с секцией для добавления к ней файлов
-        var formAttachments = this._form.find('.form-attachments');
-        if (formAttachments.length) {
-            this._isAttachmentsSection = true;
-            if (formAttachments.attr('data-count')) {
-                this._attachmentsMaxItems = +formAttachments.attr('data-count');
-            }
-        }
-        _setupListener(this);
-    };
-
-    var _reset = function () {
-        _showForm(this);
-    };
-
-    // устанавливаем обработчики событий
-    var _setupListener = function (_this) {
-        $(document).on('change', _this._settings.selector + ' [name="agree"]', function () {
-            _changeStateSubmit(_this, !this.checked);
-        });
-        $(document).on('submit', _this._settings.selector, function (e) {
-            e.preventDefault();
-            _sendForm(_this);
-        });
-        $(document).on('click', _this._settings.selector + ' .form-captcha__refresh', function (e) {
-            e.preventDefault();
-            _refreshCaptcha(_this);
-        });
-        $(document).on('click', '[data-target="' + _this._settings.selector + '"]', function (e) {
-            e.preventDefault();
-            _showForm(_this);
-        });
-        // если у формы имеется .form-attachment
-        if (_this._isAttachmentsSection) {
-            // события для удаления добавленного к форме файла
-            $(document).on('click', _this._settings.selector + ' .form-attachments__item-link', function () {
-                var
-                    link = $(this),
-                    fileId = +link.attr('data-id'),
-                    file = link.closest('.form-attachments__item');
-                for (var i = 0, length = _this._attachmentsItems.length; i < length; i++) {
-                    if (_this._attachmentsItems[i].id === fileId) {
-                        _this._attachmentsItems.splice(i, 1);
-                        break;
-                    }
-                }
-                file.remove();
-            });
-            // событие при изменении элемента input с type="file" (name="attachment[])
-            $(document).on('change', _this._settings.selector + ' input[name="attachment[]"]', function (e) {
-                var file, fileId, removeLink;
-
-                for (var i = 0, length = e.target.files.length; i < length; i++) {
-                    if (_this._attachmentsItems.length === _this._attachmentsMaxItems) {
-                        e.target.value = '';
-                        break;
-                    }
-                    fileId = _this._attachmentsIdCounter++;
-                    file = e.target.files[i];
-                    _this._attachmentsItems.push({
-                        id: fileId,
-                        file: file
-                    });
-                    if (file.type.match(/image.*/)) {
-                        var reader = new FileReader();
-                        reader.readAsDataURL(file);
-                        (function (file, fileId) {
-                            reader.addEventListener('load', function (e) {
-                                var removeLink = '<div class="form-attachments__item" data-id="' + fileId + '">' +
-                                    '<div class="form-attachments__item-wrapper">' +
-                                    '<img class="form-attachments__item-image" src="' + e.target.result + '" alt="' + file.name + '">' +
-                                    '<div class="form-attachments__item-name">' + file.name + '</div>' +
-                                    '<div class="form-attachments__item-size">' + (file.size / 1024).toFixed(1) + 'Кб' + '</div>' +
-                                    '<div class="form-attachments__item-link" data-id="' + fileId + '">×</div>' +
-                                    '</div>' +
-                                    '</div>';
-                                _this._form.find('.form-attachments__items').append(removeLink);
-                            });
-                        })(file, fileId);
-                        continue;
-                    }
-                    removeLink = '<div class="form-attachments__item" data-id="' + fileId + '">' +
-                        '<div class="form-attachments__item-wrapper">' +
-                        '<div class="form-attachments__item-name">' + file.name + '</div>' +
-                        '<div class="form-attachments__item-size">' + (file.size / 1024).toFixed(1) + 'Кб' + '</div>' +
-                        '<div class="form-attachments__item-link" data-id="' + fileId + '">×</div>' +
-                        '</div>' +
-                        '</div>';
-                    _this._form.find('.form-attachments__items').append(removeLink);
-                }
-                e.target.value = null;
-            });
-        }
-    };
-    return {
-        init: _init,
-        reset: _reset
+    const elProgress = this._elForm.querySelector('.progress');
+    if (elProgress) {
+      elProgress.classList.add('d-none');
+      const elProgressBar = elProgress.querySelector('.progress-bar');
+      elProgressBar.setAttribute('aria-valuenow', '0');
+      elProgressBar.style.width = '0';
     }
-}();
+
+    // при успешной отправки формы
+    if (data.result === 'success') {
+      _this._$form.dispatchEvent(new Event('pf_success'));
+      if (_this._settings.isUseDefaultSuccessMessage) {
+        var $resultSuccess = _this._$form.parentElement.querySelector('.form-result-success');
+        $resultSuccess.classList.remove('d-none');
+        $resultSuccess.classList.add('d-flex');
+      }
+      return;
+    }
+
+    // если произошли ошибки при отправке
+    _this._$form.querySelector('.form-error').classList.remove('d-none');
+    _this._changeStateSubmit(false);
+
+    var attach = _this._$form.querySelector('.form-attachments__item');
+    if (attach) {
+      attach.setAttribute('title', '');
+      attach.classList.remove('is-valid');
+      attach.classList.remove('is-invalid');
+    }
+
+    // выводим ошибки которые прислал сервер
+    for (var error in data) {
+      if (!data.hasOwnProperty(error)) {
+        continue;
+      }
+      switch (error) {
+        case 'captcha':
+          _this._refreshCaptcha(_this);
+          var $element = _this._$form.querySelector('[name="' + error + '"]');
+          _this._setStateValidaion($element, 'error', data[error]);
+          break;
+        case 'attachment':
+          var attachs = data[error];
+          for (let key in attachs) {
+            var id = _this._attachmentsItems[key].id;
+            var selector = '.form-attachments__item[data-id="' + id + '"]';
+            var $attach = _this._$form.querySelector(selector);
+            $attach.setAttribute('title', attachs[key]);
+            $attach.classList.add('is-invalid');
+          }
+          break;
+        case 'log':
+          var logs = data[error];
+          for (var i = 0, length = logs.length; i < length; i++) {
+            console.log(logs[i]);
+          }
+          break;
+        default:
+          var $element = _this._$form.querySelector('[name="' + error + '"]');
+          if ($element) {
+            _this._setStateValidaion($element, 'error', data[error]);
+          }
+      }
+    }
+    // устанавливаем фокус на не валидный элемент
+    if (_this._$form.querySelectorAll('.is-invalid').length > 0) {
+      if (_this._$form.querySelectorAll('.is-invalid')[0].classList.contains('file')) {
+        _this._$form.querySelector('input[type="file"]').focus();
+      } else {
+        _this._$form.querySelectorAll('.is-invalid')[0].focus();
+      }
+    }
+    var its = _this._$form.querySelectorAll('.form-attachments__item :not(.is-invalid)');
+    for (var i = 0, length = its.length; i < length; i++) {
+      its[i].classList.add('is-valid');
+    }
+  }
+
+  _errorXHR() {
+    this._elForm.querySelector('.form-error').classList.remove('d-none');
+  }
+
+  // отправка формы
+  _sendForm() {
+
+    this._elForm.dispatchEvent(new Event('beforeSubmit'));
+
+    if (!this._validateForm()) {
+      if (this._$form.querySelectorAll('.is-invalid').length > 0) {
+        if (this._$form.querySelectorAll('.is-invalid')[0].classList.contains('file')) {
+          this._$form.querySelector('input[type="file"]').focus();
+        } else {
+          this._$form.querySelectorAll('.is-invalid')[0].focus();
+        }
+      }
+      return;
+    }
+
+    this._$form.querySelector('.form-error').classList.add('d-none');
+
+    this._changeStateSubmit(true);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', this._elForm.action);
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    xhr.responseType = 'json';
+    xhr.onload = () => {
+      if (xhr.status == 200) {
+        this._successXHR(xhr.response);
+      } else {
+        this._errorXHR();
+      }
+    }
+
+    this._elForm.querySelector('.progress').classList.remove('d-none');
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) {
+        const value = ((e.loaded * 100) / e.total).toFixed(1);
+        const el = this._elForm.querySelector('.progress-bar');
+        el.setAttribute('aria-valuenow', value);
+        el.style.width = value + '%';
+      }
+    }
+
+    xhr.send(this._collectData());
+  };
+
+  // функция для инициализации
+  _init() {
+    // устанавливаем значение свойства _isCaptchaSection в завимости от того имеется ли у формы секция с капчей или нет
+    this._isCaptchaSection = this._$form.querySelectorAll('.form-captcha').length > 0;
+    // устанавливаем значение свойства _isAgreementSection в завимости от того имеется ли у формы секция с пользовательским соглашением или нет
+    this._isAgreementSection = this._$form.querySelectorAll('.form-agreement').length > 0;
+    // устанавливаем значения свойств _isAttachmentsSection и _attachmentsMaxItems в завимости от того имеется ли у формы секция с секцией для добавления к ней файлов
+    var formAttachments = this._$form.querySelectorAll('.form-attachments');
+    if (formAttachments.length) {
+      this._isAttachmentsSection = true;
+      if (formAttachments[0].getAttribute('data-count')) {
+        this._attachmentsMaxItems = +formAttachments[0].getAttribute('data-count');
+      }
+    }
+    this._setupListener.call(this);
+  }
+
+  _reset() {
+    this._showForm();
+  }
+
+  // устанавливаем обработчики событий
+  _setupListener() {
+    var $form = this._$form;
+    $form.onchange = function (e) {
+      var $element = e.target;
+      if ($element.name === 'agree') {
+        this._changeStateSubmit(!$element.checked);
+      }
+    }.bind(this);
+    $form.onsubmit = function (e) {
+      var $form = e.target;
+      if ($form === this._$form) {
+        e.preventDefault();
+        this._sendForm(this);
+      }
+    }.bind(this);
+    // обработка события click
+    $form.onclick = function (e) {
+      var $element = e.target;
+      if ($element.classList.contains('form-captcha__refresh')) {
+        // при нажатии click на form-captcha__refresh
+        e.preventDefault();
+        this._refreshCaptcha();
+      } else if ($element.classList.contains('form-attachments__item-link')) {
+        // при нажатии click на form-attachments__item-link
+        var id = +$element.dataset.id;
+        var $item = $form.querySelector('.form-attachments__item[data-id="' + id + '"]');
+        var $attachs = this._attachmentsItems;
+        for (var i = 0, length = $attachs.length; i < length; i++) {
+          if ($attachs[i].id === id) {
+            $attachs.splice(i, 1);
+            break;
+          }
+        }
+        $item.parentElement.removeChild($item);
+      }
+    }.bind(this);
+
+    $form.parentElement.onclick = function (e) {
+      var $element = e.target;
+      if ($element.dataset.target === this._settings.selector) {
+        e.preventDefault();
+        this._showForm();
+      }
+    }.bind(this);
+
+    var _this = this;
+
+    // если у формы имеется .form-attachment
+    if (this._isAttachmentsSection) {
+      // событие при изменении элемента input с type="file" (name="attachment[])
+      _this._$form.addEventListener('change', function (e) {
+        if (e.target.name !== 'attachment[]') {
+          return;
+        }
+
+        var file, fileId, removeLink;
+
+        for (var i = 0, length = e.target.files.length; i < length; i++) {
+          if (_this._attachmentsItems.length === _this._attachmentsMaxItems) {
+            e.target.value = '';
+            break;
+          }
+          fileId = _this._attachmentsIdCounter++;
+          file = e.target.files[i];
+          _this._attachmentsItems.push({
+            id: fileId,
+            file: file,
+          });
+          if (file.type.match(/image.*/)) {
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            (function (file, fileId) {
+              reader.addEventListener('load', function (e) {
+                var removeLink = `<div class="form-attachments__item" data-id="${fileId}">
+                  <div class="form-attachments__item-wrapper">
+                    <img class="form-attachments__item-image" src="${e.target.result}" alt="${file.name}">
+                    <div class="form-attachments__item-name">${file.name}</div>
+                    <div class="form-attachments__item-size">${(file.size / 1024).toFixed(1)}Кб</div>
+                    <div class="form-attachments__item-link" data-id="${fileId}">×</div>
+                  </div></div>`;
+                _this._$form.querySelector('.form-attachments__items').innerHTML += removeLink;
+              });
+            })(file, fileId);
+            continue;
+          }
+          removeLink = `<div class="form-attachments__item" data-id="${fileId}">
+          <div class="form-attachments__item-wrapper">
+            <div class="form-attachments__item-name">${file.name}</div>
+            <div class="form-attachments__item-size">${(file.size / 1024).toFixed(1)}Кб</div>
+            <div class="form-attachments__item-link" data-id="${fileId}">×</div>
+          </div></div>`;
+          _this._$form.querySelector('.form-attachments__items').innerHTML += removeLink;
+        }
+        e.target.value = null;
+      });
+    }
+  }
+}

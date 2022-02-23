@@ -42,12 +42,13 @@
 
         <!-- Файлы, для прикрепления к форме -->
         <div class="form-group form-attachments" data-count="5">
+          <div class="form__attach-label">Файлы (не более 5)</div>
           <div class="form-attachments__wrapper">
             <input type="file" name="attachment[]" multiple>
             <div class="form-attachments__items">
               <div class="form-attachments__description">
-                <div>Нажмите чтобы добавить файлы к сообщению.</div>
-                <div>Можно добавить до 5 файлов с разрешением jpg, jpeg, bmp, gif, png и размером до 512 Кбайт.</div>
+                <div>Нажмите для загрузки файлов или перетащите их</div>
+                <div class="text-sm">PNG, JPG, GIF (до 512 Кбайт)</div>
               </div>
             </div>
           </div>
@@ -110,7 +111,7 @@
 
   </div>
 
-  <script src="/feedback/js/process-forms-without-jquery.js"></script>
+  <script src="/feedback/js/process-forms.js"></script>
   <script>
     /*
     Параметры указываются в виде:
