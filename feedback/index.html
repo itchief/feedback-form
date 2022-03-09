@@ -12,7 +12,7 @@
   <div class="container">
     <h1>Форма обратной связи</h1>
 
-    <div class="form__wrapper">
+    <div class="form-container form__wrapper">
       <!-- Форма обратной связи -->
       <form id="feedback-form" action="/feedback/process/process.php" enctype="multipart/form-data" novalidate>
         <div class="form-row">
@@ -41,17 +41,17 @@
         </div>
 
         <!-- Файлы, для прикрепления к форме -->
-        <div class="form-group form-attachments" data-count="5">
-          <div class="form__attach-label">Файлы (не более 5)</div>
-          <div class="form-attachments__wrapper">
-            <input type="file" name="attachment[]" multiple>
-            <div class="form-attachments__items">
-              <div class="form-attachments__description">
-                <div>Нажмите для загрузки файлов или перетащите их</div>
-                <div class="text-sm">PNG, JPG, GIF (до 512 Кбайт)</div>
-              </div>
+        <div class="form-group form-attach" data-count="5">
+          <div class="form-attach__label">Файлы (не более <span class="form-attach__count">5</span>)</div>
+          <div class="form-attach__wrapper">
+            <input type="file" name="attach[]" multiple required>
+            <div class="form-attach__description">
+              <div>Нажмите для загрузки файлов или перетащите их</div>
+              <div class="text-sm">PNG, JPG, GIF (до 512 Кбайт)</div>
             </div>
+            <div class="form-attach__items"></div>
           </div>
+          <div class="invalid-feedback"></div>
         </div>
 
         <!-- Капча -->
@@ -74,37 +74,33 @@
         </div>
 
         <!-- Пользовательское солашение -->
-        <div class="form-group form-agreement">
-          <div class="custom-control custom-checkbox">
-            <input type="checkbox" name="agree" class="custom-control-input" id="customCheck">
-            <label class="custom-control-label" for="customCheck">Нажимая кнопку, я принимаю условия <a
-                href="#">Пользовательского соглашения</a> и даю своё согласие на обработку моих персональных данных, в
-              соответствии с Федеральным законом от 27.07.2006 года №152-ФЗ «О персональных данных».</label>
-          </div>
+        <div class="form-group form-agree form-check">
+          <input class="form-check-input" type="checkbox" name="agree" id="agree" required>
+          <label class="form-check-label" for="agree">Нажимая кнопку, я принимаю условия <a href="#">Пользовательского
+              соглашения</a> и даю своё согласие на обработку моих персональных данных</label>
+          <div class="invalid-feedback"></div>
         </div>
 
-        <!-- Сообщение при ошибке -->
-        <div class="form-error d-none">
-          Исправьте данные и отправьте форму ещё раз.
-        </div>
+        <!-- Сообщение об ошибке -->
+        <div class="form-error form-error_hide">Исправьте данные и отправьте форму ещё раз.</div>
 
         <!-- Индикация отправки данных формы на сервер -->
-        <div class="progress d-none">
+        <div class="progress form-progress d-none">
           <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"
             style="width: 0"></div>
         </div>
 
         <!-- Кнопка для отправки формы на сервер -->
         <div class="form-submit">
-          <button type="submit" disabled>Отправить сообщение</button>
+          <button type="submit">Отправить сообщение</button>
         </div>
 
       </form>
 
       <!-- Сообщение об успешной отправки формы -->
-      <div class="form-result-success d-none">
-        <div>Форма успешно отправлена. Нажмите на <a href="#" data-target="#feedback-form">ссылку</a>, чтобы отправить
-          ещё одно сообщение.</div>
+      <div class="form-success form-success_hide">
+        <div class="form-success__message">Форма успешно отправлена. Нажмите <button type="button"
+            class="form-success__btn">здесь</button>, если нужно отправить ещё одну форму.</div>
       </div>
 
     </div>
@@ -121,12 +117,26 @@
     ...
     }
     Основные параметры
-    selector - селектор формы (по умолчанию '#feedback-form')
-    attachmentsMaxFileSize - максимальный размер файла в Кбайтах (по умолчанию 512)
-    attachmentsFileExt - допустимые расширения файлов для загрузки (по умолчанию 'jpg','jpeg','bmp','gif','png')
-    isUseDefaultSuccessMessage - отображать дефолтное сообщение после отправки
+    attachMaxItems: 3,
+    attachMaxFileSize: 128,
+    attachExt: ['png', 'jpg']
     */
-    new ProcessForm();
+
+    const form = new ItcSubmitForm('form', {
+      isCheckValidationOnClient: true
+    });
+
+    // при получении ответа result="success" от сервера
+    document.querySelector('form').addEventListener('success', (e) => {
+      const el = e.target.closest('.form-container').querySelector('.form-success');
+      el.classList.remove('form-success_hide');
+    });
+
+    // при клике на .form-success__btn
+    document.querySelector('.form-success__btn').addEventListener('click', (e) => {
+      form.reset();
+      e.target.closest('.form-container').querySelector('.form-success').classList.add('form-success_hide');
+    })
   </script>
 
 </body>

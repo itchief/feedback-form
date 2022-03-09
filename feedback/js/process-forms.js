@@ -1,58 +1,45 @@
 /*!
  * Форма обратной связи (https://github.com/itchief/feedback-form)
- * Страница с описанием: https://itchief.ru/lessons/php/feedback-form-for-website
- * Copyright 2016-2020 Alexander Maltsev
+ * Описание: https://itchief.ru/php/feedback-form
+ * Copyright 2016-2022 Alexander Maltsev
  * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
  */
 
-class ProcessForm {
-  constructor(settings) {
-    this._settings = {
-      selector: '#feedback-form', // дефолтный селектор
-      attachmentsMaxFileSize: 512, // дефолтный максимальный размер файла в Кб
-      attachmentsFileExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png'], // дефолтные допустимые расширения для файлов
-      isUseDefaultSuccessMessage: true, // отображать дефолтное сообщение об успешной отправки формы
+class ItcSubmitForm {
+  constructor(selector = 'form', config = {}) {
+    this._attach = {
+      index: 0,
+      maxItems: config['attachMaxItems'] || 5,
+      maxFileSize: config['attachMaxFileSize'] || 512, // максимальный размер файла
+      ext: config['attachExt'] || ['jpg', 'jpeg', 'bmp', 'gif', 'png'], // дефолтные допустимые расширения для файлов
+      items: []
     };
-    this._isCaptchaSection = false; // имеется ли в форме блок с капчей
-    this._isAgreementSection = false; // имеется ли в форме блок с пользовательским соглашением
-    this._isAttachmentsSection = false; // имеется ли в форме блок для добавления к ней файлов
-    this._attachmentsIdCounter = 0; // счетчик, хранящий количество добавленных к форме файлов
-    this._attachmentsMaxItems = 5; // переменная, определяющее максимальное количество файлов, которые можно прикрепить к форме
-    this._attachmentsItems = []; // переменная, хранящая массив файлов, которые нужно прекрепить к форме
-
-    for (var propName in settings) {
-      if (settings.hasOwnProperty(propName)) {
-        this._settings[propName] = settings[propName];
-      }
-    }
-    this._$form = document.querySelector(this._settings.selector);
-    this._elForm = this._$form;
-    // инициализация формы
+    this._isCheckValidationOnClient = config['isCheckValidationOnClient'] !== false;
+    this._elForm = document.querySelector(selector);
     this._init();
   }
 
-  // функция для проверки расширения файла
-  static validateFileExtension(filename, validFileExtensions) {
-    // получаем расширение файла
-    var fileExtension = filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
-    // если есть расширение, то проверяем соответствует ли оно допустимому
-    if (fileExtension) {
-      for (var i = 0; i <= validFileExtensions.length; i++) {
-        if (validFileExtensions[i] === fileExtension.toLowerCase()) {
-          return true;
-        }
-      }
-    }
-    return false;
+  // проверка расширения файла
+  static _checkExt(filename, ext) {
+    // расширение файла
+    const extFile = filename.slice(((filename.lastIndexOf('.') - 1) >>> 0) + 2);
+    // проверка на соответствие допустимому
+    return ext.indexOf(extFile.toLowerCase()) !== -1;
   }
 
-  // переключение состояния disabled у кнопки submit
-  _changeStateSubmit(state) {
-    this._$form.querySelector('[type="submit"]').disabled = state;
+  // статический метод для получения шаблона form-attach__item
+  static _getAttachTemplate(id, file, target) {
+    const itemImg = target ? `<img class="form-attach__image" src="${target.result}" alt="${file.name}"></img>` : '';
+    return `<div class="form-attach__item" data-index="${id}" data-id="${id}">
+      ${itemImg}
+      <div class="form-attach__name">${file.name}</div>
+      <div class="form-attach__size">${(file.size / 1024).toFixed(1)}Кб</div>
+      <div class="form-attach__link" data-id="${id}">×</div>
+    </div>`;
   }
 
-  // обновление капчи
-  _refreshCaptcha() {
+  // получение новой капчи
+  _reloadСaptcha() {
     var captchaImg = this._elForm.querySelector('.form-captcha__image');
     var captchaSrc = captchaImg.getAttribute('data-src');
     var captchaPrefix = captchaSrc.indexOf('?id') !== -1 ? '&rnd=' : '?rnd=';
@@ -60,129 +47,78 @@ class ProcessForm {
     captchaImg.setAttribute('src', captchaNewSrc);
   }
 
-  // изменение состояния элемента формы (success, error, clear)
+  // установка статуса валидации
   _setStateValidaion(input, state, message) {
-    if (state === 'error') {
-      input.classList.remove('is-valid');
-      input.classList.add('is-invalid');
-      input.parentElement.querySelector('.invalid-feedback').textContent = message;
-    } else if (state === 'success') {
-      input.classList.remove('is-invalid');
-      input.classList.add('is-valid');
-    } else {
-      input.classList.remove('is-valid');
-      input.classList.remove('is-invalid');
+    const className = state === 'success' ? 'is-valid' : 'is-invalid';
+    const text = state === 'success' ? '' : message;
+    if (input.classList.contains('form-attach__item')) {
+      input.setAttribute('title', text);
+      input.classList.add(className);
+      return;
+    }
+    input.classList.remove('is-valid');
+    input.classList.remove('is-invalid');
+    input.closest('.form-group').querySelector('.invalid-feedback').textContent = '';
+    if (state === 'error' || state === 'success') {
+      input.classList.add(className);
+      input.closest('.form-group').querySelector('.invalid-feedback').textContent = text;
     }
   }
 
   // валидация формы
-  _validateForm() {
-    var valid = true;
-    var $elements = this._$form.querySelectorAll('input, textarea');
-    for (var i = 0; i < $elements.length; i++) {
-      if ($elements[i].type === 'file' || $elements[i].name === 'agree') {
-        continue;
+  _checkValidity() {
+    let valid = true;
+    // input, textarea
+    this._elForm.querySelectorAll('input, textarea').forEach(el => {
+      if (el.type === 'file') {
+        return;
       }
-      if ($elements[i].checkValidity()) {
-        this._setStateValidaion($elements[i], 'success');
+      if (el.checkValidity()) {
+        this._setStateValidaion(el, 'success');
       } else {
-        this._setStateValidaion($elements[i], 'error', $elements[i].validationMessage);
+        this._setStateValidaion(el, 'error', el.validationMessage);
         valid = false;
       }
-    }
-
-    // для теста >
-    if (this._attachmentsItems.length === 0) {
-      var files = this._attachmentsItems;
-      for (var i = 0, length = files.length; i < length; i++) {
-        // проверим размер и расширение файла
-        if (files[i].file.size > this._settings.attachmentsMaxFileSize * 1024) {
-          var attach = this._$form.querySelector('.form-attachments__item[data-id="' + i + '"]');
-          attach.setAttribute(
-            'title',
-            'Размер файла больше ' + this._settings.attachmentsMaxFileSize + 'Кб'
-          );
-          attach.classList.add('is-invalid');
-          valid = false;
-        } else if (
-          !ProcessForm.validateFileExtension(files[i].file.name, this._settings.attachmentsFileExt)
-        ) {
-          var attach = this._$form.querySelector('.form-attachments__item[data-id="' + i + '"]');
-          attach.setAttribute('title', 'Тип не соответствует разрешённым');
-          attach.classList.add('is-invalid');
-          valid = false;
-        } else {
-          var attach = this._$form.querySelector('.form-attachments__item[data-id="' + i + '"]');
-          if (attach) {
-            attach.setAttribute('title', '');
-            attach.classList.add('is-valid');
-          }
-        }
+    })
+    // attach
+    const elAttach = this._elForm.querySelector('.form-attach');
+    if (elAttach) {
+      elAttach.classList.remove('is-invalid');
+      elAttach.querySelector('.invalid-feedback').textContent = '';
+      const isRequired = elAttach.querySelector('[type="file"]').required;
+      if (isRequired && this._attach.items.length === 0) {
+        elAttach.classList.add('is-invalid');
+        elAttach.querySelector('.invalid-feedback').textContent = 'Заполните это поле.';
       }
     }
+    this._attach.items.forEach((item) => {
+      const elAttach = this._elForm.querySelector('.form-attach__item[data-index="' + item.index + '"]');
+      if (item.file.size > this._attach.maxFileSize * 1024) {
+        this._setStateValidaion(elAttach, 'error', `Размер файла больше ${this._attach.maxFileSize}Кб`);
+        valid = false;
+      } else if (!ProcessForm._checkExt(item.file.name, this._attach.ext)) {
+        this._setStateValidaion(elAttach, 'error', 'Тип не является допустимым');
+        valid = false;
+      } else {
+        this._setStateValidaion(elAttach, 'success', '');
+      }
+    })
     return valid;
   }
 
-  _showForm() {
-    this._$form.querySelector('.form-error').classList.add('d-none');
-    var $resultSuccess = this._$form.parentElement.querySelector('.form-result-success');
-    $resultSuccess.classList.add('d-none');
-    $resultSuccess.classList.remove('d-flex');
-    this._$form.reset();
-    var $elements = this._$form.querySelectorAll('input, textarea');
-    for (var i = 0, length = $elements.length; i < length; i++) {
-      this._setStateValidaion($elements[i], 'clear');
-    }
-    if (this._isCaptchaSection) {
-      this._refreshCaptcha();
-    }
-    if (this._isAgreementSection) {
-      this._changeStateSubmit(true);
-    } else {
-      this._changeStateSubmit(false);
-    }
-
-    // удаление attachment items
-    var $attachs = this._$form.querySelectorAll('.form-attachments__item');
-    if ($attachs.length > 0) {
-      for (var i = 0, length = $attachs.length; i < length; i++) {
-        $attachs[i].parentElement.removeChild($attachs[i]);
-      }
-    }
-
-    if (this._$form.querySelector('.progress-bar').length) {
-      var $progressBar = this._$form.querySelector('.progress-bar');
-      $progressBar.setAttribute('aria-valuenow', '0');
-      $progressBar.style.width = 0;
-    }
-  }
-
-  // переключение disabled для name="attachment[]"
-  _disabledAttach(state) {
-    var $attach = this._$form.querySelector('[name="attachment[]"]');
-    if ($attach) {
-      $attach.disabled = state;
-    }
-  }
-
   // собираем данные для отправки на сервер
-  _collectData() {
-    var data;
-    var $attachs = this._attachmentsItems;
-    // отключаем добавление данных из name="attachment[]" в FormData
-    this._disabledAttach(true);
-    data = new FormData(this._$form);
-    // включаем доступность name="attachment[]"
-    this._disabledAttach(false);
-    // добавляем данные из name="attachment[]" в FormData
-    for (var i = 0, length = $attachs.length; i < length; i++) {
-      data.append('attachment[]', $attachs[i].file);
-    }
-    return data;
+  _getFormData() {
+    const formData = new FormData(this._elForm);
+    formData.delete('attach[]');
+    this._attach.items.forEach(item => {
+      formData.append('attach[]', item.file);
+    });
+    return formData;
   };
 
+  // при получении успешного ответа от сервера
   _successXHR(data) {
-    // при получении успешного ответа от сервера
+
     var _this = this;
 
     const elProgress = this._elForm.querySelector('.progress');
@@ -194,73 +130,46 @@ class ProcessForm {
     }
 
     // при успешной отправки формы
-    if (data.result === 'success') {
-      _this._$form.dispatchEvent(new Event('pf_success'));
-      if (_this._settings.isUseDefaultSuccessMessage) {
-        var $resultSuccess = _this._$form.parentElement.querySelector('.form-result-success');
-        $resultSuccess.classList.remove('d-none');
-        $resultSuccess.classList.add('d-flex');
-      }
+    if (data['result'] === 'success') {
+      this._elForm.dispatchEvent(new Event('success'));
       return;
     }
 
-    // если произошли ошибки при отправке
-    _this._$form.querySelector('.form-error').classList.remove('d-none');
-    _this._changeStateSubmit(false);
+    this._elForm.querySelector('.form-error').classList.remove('form-error_hidden');
 
-    var attach = _this._$form.querySelector('.form-attachments__item');
-    if (attach) {
-      attach.setAttribute('title', '');
-      attach.classList.remove('is-valid');
-      attach.classList.remove('is-invalid');
-    }
-
-    // выводим ошибки которые прислал сервер
-    for (var error in data) {
-      if (!data.hasOwnProperty(error)) {
-        continue;
-      }
-      switch (error) {
-        case 'captcha':
-          _this._refreshCaptcha(_this);
-          var $element = _this._$form.querySelector('[name="' + error + '"]');
-          _this._setStateValidaion($element, 'error', data[error]);
-          break;
-        case 'attachment':
-          var attachs = data[error];
-          for (let key in attachs) {
-            var id = _this._attachmentsItems[key].id;
-            var selector = '.form-attachments__item[data-id="' + id + '"]';
-            var $attach = _this._$form.querySelector(selector);
-            $attach.setAttribute('title', attachs[key]);
-            $attach.classList.add('is-invalid');
-          }
-          break;
-        case 'log':
-          var logs = data[error];
-          for (var i = 0, length = logs.length; i < length; i++) {
-            console.log(logs[i]);
-          }
-          break;
-        default:
-          var $element = _this._$form.querySelector('[name="' + error + '"]');
-          if ($element) {
-            _this._setStateValidaion($element, 'error', data[error]);
-          }
-      }
-    }
-    // устанавливаем фокус на не валидный элемент
-    if (_this._$form.querySelectorAll('.is-invalid').length > 0) {
-      if (_this._$form.querySelectorAll('.is-invalid')[0].classList.contains('file')) {
-        _this._$form.querySelector('input[type="file"]').focus();
+    // выводим ошибки
+    for (let key in data) {
+      if (key === 'attach') {
+        const attachs = data[key];
+        for (let attach in attachs) {
+          let index = this._attach.items[attach].index;
+          var elAttach = this._elForm.querySelector('.form-attach__item[data-index="' + index + '"]');
+          this._setStateValidaion(elAttach, 'error', attachs[attach]);
+        }
+      } else if (key === 'log') {
+        data[key].forEach((message) => {
+          console.log(message);
+        })
       } else {
-        _this._$form.querySelectorAll('.is-invalid')[0].focus();
+        key === 'captcha' ? this._reloadСaptcha() : null;
+        const el = this._elForm.querySelector('[name="' + key + '"]');
+        el ? this._setStateValidaion(el, 'error', data[key]) : null;
       }
     }
-    var its = _this._$form.querySelectorAll('.form-attachments__item :not(.is-invalid)');
-    for (var i = 0, length = its.length; i < length; i++) {
-      its[i].classList.add('is-valid');
+
+    // устанавливаем фокус на не валидный элемент
+    const elInvalid = this._elForm.querySelector('.is-invalid');
+    if (elInvalid) {
+      if (elInvalid.classList.contains('form-attach')) {
+        elInvalid.querySelector('input[type="file"]').focus();
+      } else {
+        elInvalid.focus();
+      }
     }
+
+    this._elForm.querySelectorAll('.form-attach__item :not(.is-invalid)').forEach(el => {
+      el.classList.add('is-valid');
+    })
   }
 
   _errorXHR() {
@@ -268,37 +177,39 @@ class ProcessForm {
   }
 
   // отправка формы
-  _sendForm() {
+  _onSubmit() {
 
-    this._elForm.dispatchEvent(new Event('beforeSubmit'));
+    this._elForm.dispatchEvent(new Event('before-send'));
 
-    if (!this._validateForm()) {
-      if (this._$form.querySelectorAll('.is-invalid').length > 0) {
-        if (this._$form.querySelectorAll('.is-invalid')[0].classList.contains('file')) {
-          this._$form.querySelector('input[type="file"]').focus();
-        } else {
-          this._$form.querySelectorAll('.is-invalid')[0].focus();
+    if (this._isCheckValidationOnClient) {
+      if (!this._checkValidity()) {
+        const elInvalid = this._elForm.querySelector('.is-invalid');
+        if (elInvalid) {
+          if (elInvalid.classList.contains('form-attach')) {
+            elInvalid.querySelector('input[type="file"]').focus();
+          } else {
+            elInvalid.focus();
+          }
         }
+        return;
       }
-      return;
     }
 
-    this._$form.querySelector('.form-error').classList.add('d-none');
-
-    this._changeStateSubmit(true);
+    this._elForm.querySelector('[type="submit"]').disabled = true;
+    this._elForm.querySelector('.form-error').classList.add('form-error_hide');
 
     var xhr = new XMLHttpRequest();
     xhr.open('POST', this._elForm.action);
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.responseType = 'json';
     xhr.onload = () => {
+      this._elForm.querySelector('[type="submit"]').disabled = false;
       if (xhr.status == 200) {
         this._successXHR(xhr.response);
       } else {
         this._errorXHR();
       }
     }
-
     this._elForm.querySelector('.progress').classList.remove('d-none');
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
@@ -308,127 +219,93 @@ class ProcessForm {
         el.style.width = value + '%';
       }
     }
-
-    xhr.send(this._collectData());
+    xhr.send(this._getFormData());
   };
 
   // функция для инициализации
   _init() {
-    // устанавливаем значение свойства _isCaptchaSection в завимости от того имеется ли у формы секция с капчей или нет
-    this._isCaptchaSection = this._$form.querySelectorAll('.form-captcha').length > 0;
-    // устанавливаем значение свойства _isAgreementSection в завимости от того имеется ли у формы секция с пользовательским соглашением или нет
-    this._isAgreementSection = this._$form.querySelectorAll('.form-agreement').length > 0;
-    // устанавливаем значения свойств _isAttachmentsSection и _attachmentsMaxItems в завимости от того имеется ли у формы секция с секцией для добавления к ней файлов
-    var formAttachments = this._$form.querySelectorAll('.form-attachments');
-    if (formAttachments.length) {
-      this._isAttachmentsSection = true;
-      if (formAttachments[0].getAttribute('data-count')) {
-        this._attachmentsMaxItems = +formAttachments[0].getAttribute('data-count');
+    const elFormAttachCount = this._elForm.querySelector('.form-attach__count');
+    elFormAttachCount ? elFormAttachCount.textContent = this._attach.maxItems : null;
+    this._addEventListener();
+  }
+
+  // добавляем обработчики для событий
+  _addEventListener() {
+    // обработка события submit
+    this._elForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this._onSubmit();
+    });
+    // обработка события click
+    this._elForm.addEventListener('click', (e) => {
+      const target = e.target;
+      if (target.closest('.form-captcha__refresh')) {
+        e.preventDefault();
+        this._reloadСaptcha();
+      } else if (target.closest('.form-attach__link')) {
+        const el = target.closest('.form-attach__item');
+        const index = +el.dataset.index;
+        this._attach.items.forEach((item, i) => {
+          if (item['index'] === index) {
+            this._attach.items.splice(i, 1);
+            el.remove();
+            return;
+          }
+        });
+      }
+    })
+    // обработка события change
+    this._elForm.addEventListener('change', (e) => {
+      const target = e.target;
+      if (target.name !== 'attach[]') {
+        return;
+      }
+      for (let i = 0, length = target.files.length; i < length; i++) {
+        if (this._attach.items.length >= this._attach.maxItems) {
+          target.value = '';
+          break;
+        }
+        const index = this._attach.index++;
+        const file = target.files[i];
+        this._attach.items.push({
+          index,
+          file
+        });
+        if (file.type.match(/image.*/)) {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.addEventListener('load', (e) => {
+            this._elForm.querySelector('.form-attach__items').innerHTML += ProcessForm._getAttachTemplate(index, file, e.target);
+          });
+        } else {
+          this._elForm.querySelector('.form-attach__items').innerHTML += ProcessForm._getAttachTemplate(index, file);
+        }
+      }
+      target.value = '';
+    });
+  }
+  // сброс формы
+  reset() {
+    if (this._elForm.querySelector('.form-error')) {
+      this._elForm.querySelector('.form-error').classList.add('form-error_hide');
+    }
+    this._elForm.reset();
+    this._elForm.querySelectorAll('input, textarea').forEach(el => {
+      this._setStateValidaion(el);
+    });
+    document.querySelector('[name="captcha"]') ? this._reloadСaptcha() : null;
+    if (this._elForm.querySelector('.form-attach')) {
+      this._attach['index'] = 0;
+      this._attach['items'] = [];
+      this._elForm.querySelector('.form-attach__items').textContent = '';
+      if (this._elForm.querySelector('.is-invalid')) {
+        this._elForm.querySelector('.is-invalid').classList.remove('is-invalid');
       }
     }
-    this._setupListener.call(this);
-  }
-
-  _reset() {
-    this._showForm();
-  }
-
-  // устанавливаем обработчики событий
-  _setupListener() {
-    var $form = this._$form;
-    $form.onchange = function (e) {
-      var $element = e.target;
-      if ($element.name === 'agree') {
-        this._changeStateSubmit(!$element.checked);
-      }
-    }.bind(this);
-    $form.onsubmit = function (e) {
-      var $form = e.target;
-      if ($form === this._$form) {
-        e.preventDefault();
-        this._sendForm(this);
-      }
-    }.bind(this);
-    // обработка события click
-    $form.onclick = function (e) {
-      var $element = e.target;
-      if ($element.classList.contains('form-captcha__refresh')) {
-        // при нажатии click на form-captcha__refresh
-        e.preventDefault();
-        this._refreshCaptcha();
-      } else if ($element.classList.contains('form-attachments__item-link')) {
-        // при нажатии click на form-attachments__item-link
-        var id = +$element.dataset.id;
-        var $item = $form.querySelector('.form-attachments__item[data-id="' + id + '"]');
-        var $attachs = this._attachmentsItems;
-        for (var i = 0, length = $attachs.length; i < length; i++) {
-          if ($attachs[i].id === id) {
-            $attachs.splice(i, 1);
-            break;
-          }
-        }
-        $item.parentElement.removeChild($item);
-      }
-    }.bind(this);
-
-    $form.parentElement.onclick = function (e) {
-      var $element = e.target;
-      if ($element.dataset.target === this._settings.selector) {
-        e.preventDefault();
-        this._showForm();
-      }
-    }.bind(this);
-
-    var _this = this;
-
-    // если у формы имеется .form-attachment
-    if (this._isAttachmentsSection) {
-      // событие при изменении элемента input с type="file" (name="attachment[])
-      _this._$form.addEventListener('change', function (e) {
-        if (e.target.name !== 'attachment[]') {
-          return;
-        }
-
-        var file, fileId, removeLink;
-
-        for (var i = 0, length = e.target.files.length; i < length; i++) {
-          if (_this._attachmentsItems.length === _this._attachmentsMaxItems) {
-            e.target.value = '';
-            break;
-          }
-          fileId = _this._attachmentsIdCounter++;
-          file = e.target.files[i];
-          _this._attachmentsItems.push({
-            id: fileId,
-            file: file,
-          });
-          if (file.type.match(/image.*/)) {
-            var reader = new FileReader();
-            reader.readAsDataURL(file);
-            (function (file, fileId) {
-              reader.addEventListener('load', function (e) {
-                var removeLink = `<div class="form-attachments__item" data-id="${fileId}">
-                  <div class="form-attachments__item-wrapper">
-                    <img class="form-attachments__item-image" src="${e.target.result}" alt="${file.name}">
-                    <div class="form-attachments__item-name">${file.name}</div>
-                    <div class="form-attachments__item-size">${(file.size / 1024).toFixed(1)}Кб</div>
-                    <div class="form-attachments__item-link" data-id="${fileId}">×</div>
-                  </div></div>`;
-                _this._$form.querySelector('.form-attachments__items').innerHTML += removeLink;
-              });
-            })(file, fileId);
-            continue;
-          }
-          removeLink = `<div class="form-attachments__item" data-id="${fileId}">
-          <div class="form-attachments__item-wrapper">
-            <div class="form-attachments__item-name">${file.name}</div>
-            <div class="form-attachments__item-size">${(file.size / 1024).toFixed(1)}Кб</div>
-            <div class="form-attachments__item-link" data-id="${fileId}">×</div>
-          </div></div>`;
-          _this._$form.querySelector('.form-attachments__items').innerHTML += removeLink;
-        }
-        e.target.value = null;
-      });
+    if (this._elForm.querySelector('.form-progress')) {
+      const elProgressBar = this._elForm.querySelector('.progress-bar');
+      elProgressBar.setAttribute('aria-valuenow', '0');
+      elProgressBar.style.width = 0;
     }
   }
 }

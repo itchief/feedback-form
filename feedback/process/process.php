@@ -138,34 +138,34 @@ if (IS_CHECK_CAPTCHA == true) {
 }
 
 /* 6 ЭТАП - ВАЛИДАЦИЯ ФАЙЛОВ */
-if (isset($_FILES['attachment'])) {
+if (isset($_FILES['attach'])) {
   // перебор массива $_FILES['attachment']
-  foreach ($_FILES['attachment']['error'] as $key => $error) {
+  foreach ($_FILES['attach']['error'] as $key => $error) {
     // если файл был успешно загружен на сервер (ошибок не возникло), то...
     if ($error == UPLOAD_ERR_OK) {
       // получаем имя файла
-      $fileName = $_FILES['attachment']['name'][$key];
+      $fileName = $_FILES['attach']['name'][$key];
       // получаем расширение файла в нижнем регистре
       $fileExtension = mb_strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
       // получаем размер файла
-      $fileSize = $_FILES['attachment']['size'][$key];
+      $fileSize = $_FILES['attach']['size'][$key];
       // результат проверки расширения файла
       $resultCheckExtension = true;
       // проверяем расширение загруженного файла
       if (!in_array($fileExtension, ALLOWED_EXTENSIONS)) {
         $resultCheckExtension = false;
-        $data['attachment'][$key] = 'Файл имеет не разрешённый тип.';
+        $data['attach'][$key] = 'Файл имеет не разрешённый тип.';
         $data['result'] = 'error';
         log_write('Произошла ошибка! Файл ' . $fileName . ' имеет не разрешённый тип.');
       }
       // проверяем размер файла
       if ($resultCheckExtension && ($fileSize > MAX_FILE_SIZE)) {
-        $data['attachment'][$key] = 'Размер файла превышает допустимый.';
+        $data['attach'][$key] = 'Размер файла превышает допустимый.';
         $data['result'] = 'error';
         log_write('Произошла ошибка! Файл ' . $fileName . ' имеет не разрешённый размер.');
       }
     } else {
-      $data['attachment'][$key] = 'Ошибка при загрузке файла.';
+      $data['attach'][$key] = 'Ошибка при загрузке файла.';
       $data['result'] = 'error';
       log_write('Произошла ошибка при загрузке файла на сервер!');
     }
@@ -175,19 +175,19 @@ if (isset($_FILES['attachment'])) {
     // переменная для хранения имён файлов
     $attachments = array();
     // перемещение файлов в директорию $uploadPath
-    foreach ($_FILES['attachment']['name'] as $key => $attachment) {
+    foreach ($_FILES['attach']['name'] as $key => $attachment) {
       // получаем имя файла
-      $fileName = basename($_FILES['attachment']['name'][$key]);
+      $fileName = basename($_FILES['attach']['name'][$key]);
       // получаем расширение файла в нижнем регистре
       $fileExtension = mb_strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
       // временное имя файла на сервере
-      $fileTmp = $_FILES['attachment']['tmp_name'][$key];
+      $fileTmp = $_FILES['attach']['tmp_name'][$key];
       // создаём уникальное имя
       $fileNewName = uniqid('upload_', true) . '.' . $fileExtension;
       // перемещаем файл в директорию
       if (!move_uploaded_file($fileTmp, $uploadPath . $fileNewName)) {
         // ошибка при перемещении файла
-        $data['attachment'][$key] = 'Ошибка при загрузке файла.';
+        $data['attach'][$key] = 'Ошибка при загрузке файла.';
         $data['result'] = 'error';
         log_write('Произошла ошибка при перемещении файла в директорию, определяемою переменной $uploadPath!');
       } else {
