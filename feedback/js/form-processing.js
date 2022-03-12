@@ -96,7 +96,7 @@ class ItcSubmitForm {
       if (item.file.size > this._attach.maxFileSize * 1024) {
         this._setStateValidaion(elAttach, 'error', `Размер файла больше ${this._attach.maxFileSize}Кб`);
         valid = false;
-      } else if (!ProcessForm._checkExt(item.file.name, this._attach.ext)) {
+      } else if (!ItcSubmitForm._checkExt(item.file.name, this._attach.ext)) {
         this._setStateValidaion(elAttach, 'error', 'Тип не является допустимым');
         valid = false;
       } else {
@@ -119,8 +119,6 @@ class ItcSubmitForm {
   // при получении успешного ответа от сервера
   _successXHR(data) {
 
-    var _this = this;
-
     const elProgress = this._elForm.querySelector('.progress');
     if (elProgress) {
       elProgress.classList.add('d-none');
@@ -128,6 +126,16 @@ class ItcSubmitForm {
       elProgressBar.setAttribute('aria-valuenow', '0');
       elProgressBar.style.width = '0';
     }
+
+    const elAttach = this._elForm.querySelector('.form-attach');
+    if (elAttach) {
+      elAttach.classList.remove('is-invalid');
+      elAttach.querySelector('.invalid-feedback').textContent = '';
+    }
+
+    this._elForm.querySelectorAll('input, textarea').forEach(el => {
+      this._setStateValidaion(el);
+    });
 
     // при успешной отправки формы
     if (data['result'] === 'success') {
@@ -138,24 +146,35 @@ class ItcSubmitForm {
     this._elForm.querySelector('.form-error').classList.remove('form-error_hidden');
 
     // выводим ошибки
-    for (let key in data) {
+    for (let key in data['errors']) {
       if (key === 'attach') {
-        const attachs = data[key];
-        for (let attach in attachs) {
-          let index = this._attach.items[attach].index;
-          var elAttach = this._elForm.querySelector('.form-attach__item[data-index="' + index + '"]');
-          this._setStateValidaion(elAttach, 'error', attachs[attach]);
+        const attachs = data['errors'][key];
+        if (typeof attachs === 'string') {
+          if (elAttach.querySelector('[type="file"]').required) {
+            elAttach.classList.add('is-invalid');
+            elAttach.querySelector('.invalid-feedback').textContent = attachs;
+          }
+        } else {
+          for (let attach in attachs) {
+            const index = this._attach.items[attach].index;
+            const elAttach = this._elForm.querySelector('.form-attach__item[data-index="' + index + '"]');
+            this._setStateValidaion(elAttach, 'error', attachs[attach]);
+          }
         }
-      } else if (key === 'log') {
-        data[key].forEach((message) => {
-          console.log(message);
-        })
       } else {
         key === 'captcha' ? this._reloadСaptcha() : null;
         const el = this._elForm.querySelector('[name="' + key + '"]');
-        el ? this._setStateValidaion(el, 'error', data[key]) : null;
+        el ? this._setStateValidaion(el, 'error', data['errors'][key]) : null;
       }
     }
+    // к полям, отвечающим требованиям, добавляем класс is-valid
+    this._elForm.querySelectorAll('.form-attach__item:not(.is-invalid), input:not(.is-invalid), textarea:not(.is-invalid)').forEach(el => {
+      this._setStateValidaion(el, 'success', '');
+    })
+
+    data['logs'].forEach((message) => {
+      console.log(message);
+    });
 
     // устанавливаем фокус на не валидный элемент
     const elInvalid = this._elForm.querySelector('.is-invalid');
@@ -166,10 +185,6 @@ class ItcSubmitForm {
         elInvalid.focus();
       }
     }
-
-    this._elForm.querySelectorAll('.form-attach__item :not(.is-invalid)').forEach(el => {
-      el.classList.add('is-valid');
-    })
   }
 
   _errorXHR() {
@@ -275,10 +290,10 @@ class ItcSubmitForm {
           const reader = new FileReader();
           reader.readAsDataURL(file);
           reader.addEventListener('load', (e) => {
-            this._elForm.querySelector('.form-attach__items').innerHTML += ProcessForm._getAttachTemplate(index, file, e.target);
+            this._elForm.querySelector('.form-attach__items').innerHTML += ItcSubmitForm._getAttachTemplate(index, file, e.target);
           });
         } else {
-          this._elForm.querySelector('.form-attach__items').innerHTML += ProcessForm._getAttachTemplate(index, file);
+          this._elForm.querySelector('.form-attach__items').innerHTML += ItcSubmitForm._getAttachTemplate(index, file);
         }
       }
       target.value = '';

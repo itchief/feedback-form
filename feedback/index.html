@@ -14,7 +14,7 @@
 
     <div class="form-container form__wrapper">
       <!-- Форма обратной связи -->
-      <form id="feedback-form" action="/feedback/process/process.php" enctype="multipart/form-data" novalidate>
+      <form id="feedback-form" action="/feedback/form-processing.php" enctype="multipart/form-data" novalidate>
         <div class="form-row">
           <!-- Имя пользователя -->
           <div class="form-group">
@@ -75,7 +75,7 @@
 
         <!-- Пользовательское солашение -->
         <div class="form-group form-agree form-check">
-          <input class="form-check-input" type="checkbox" name="agree" id="agree" required>
+          <input class="form-check-input" type="checkbox" name="agree" id="agree" required value="true">
           <label class="form-check-label" for="agree">Нажимая кнопку, я принимаю условия <a href="#">Пользовательского
               соглашения</a> и даю своё согласие на обработку моих персональных данных</label>
           <div class="invalid-feedback"></div>
@@ -107,24 +107,15 @@
 
   </div>
 
-  <script src="/feedback/js/process-forms.js"></script>
+  <script src="/feedback/js/form-processing.js"></script>
   <script>
     /*
-    Параметры указываются в виде:
-    {
-    ключ: значение;
-    ключ: значение;
-    ...
-    }
-    Основные параметры
-    attachMaxItems: 3,
-    attachMaxFileSize: 128,
-    attachExt: ['png', 'jpg']
+      attachMaxItems: 3,
+      attachMaxFileSize: 128,
+      attachExt: ['png', 'jpg']
     */
 
-    const form = new ItcSubmitForm('form', {
-      isCheckValidationOnClient: true
-    });
+    const form = new ItcSubmitForm('form');
 
     // при получении ответа result="success" от сервера
     document.querySelector('form').addEventListener('success', (e) => {
