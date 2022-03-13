@@ -3,7 +3,7 @@ A small project containing an example of a page with a feedback/contact form bui
 
 Check the on here Demo: https://itchief.ru/examples/lab.php?topic=php&file=feedback-form
 
-<> Screenshots:
+Screenshots:
 
 ## Step-by-step instructions for installing
 1. Add a form to the HTML (it allows us to collect data).
