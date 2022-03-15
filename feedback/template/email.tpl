@@ -6,7 +6,7 @@
           <tbody>
             <tr>
               <td bgcolor="#fff" style="padding: 15px;">
-                <font color="#777" style="font-size:18px">%email.title%</font>
+                <font color="#777" style="font-size:18px">%subject%</font>
               </td>
             </tr>
             <tr>
@@ -14,17 +14,15 @@
             </tr>
             <tr>
               <td bgcolor="#fff" style="padding: 15px;">
-
-                Пользователь
-                <b>%email.nameuser%</b> оставил следующее сообщение:
-                <br> %email.message%
-                <hr> Email пользователя:
-                <b>%email.emailuser%</b>
-                <br> Дата отправки:
-                <b>%email.date%</b>
+                Пользователь <b>%name%</b> оставил следующее сообщение:
                 <hr>
-                Файлы:
-                %email.attachments%
+                %message%
+                <hr>
+                Email пользователя: <b>%email%</b>
+                <br>
+                Дата отправки: <b>%date%</b>
+                <br>
+                %attachs%
               </td>
             </tr>
             <tr>
@@ -32,7 +30,7 @@
             </tr>
             <tr>
               <td bgcolor="#fff " style="padding: 20px 15px; color: #777; font-size: 14px;">
-                <p>&copy; 2020 Мой сайт.</p>
+                <p>&copy; 2022 Мой сайт.</p>
               </td>
             </tr>
           </tbody>
