@@ -12,17 +12,16 @@ Screenshots:
 ![](https://itchief.ru/assets/images/350/3.png)
 
 ## Step-by-step instructions
-1. Add a form to the HTML (it allows us to collect data).
-An example of the form is located in "index.html".
+
+### 1. Add form in HTML
 ```html
 <form id="form" action="/feedback/processing.php" enctype="multipart/form-data" novalidate>
   ...
 </form>
 ```
-The handler is set using the action attribute.
-An example of the form is located in "index.html".
+An example of the form is given in "index.html".
 
-2. Connect the files "style.css" and "form-processing.js":
+### 2. Include files in HTML:
 ```html
 <link rel="stylesheet" href="css/style.css">
 <script src="/feedback/js/form-processing.js"></script>
@@ -50,7 +49,7 @@ document.querySelector('.form-success__btn').addEventListener('click', (e) => {
 ```
 The `reset()` method resets the form.
 
-3. Initialize the form as `ItcSubmitForm`:
+### 3. Initialize form as `ItcSubmitForm`
 ```js
 // 'form' - selector
 const form = new ItcSubmitForm('form');
