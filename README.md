@@ -4,9 +4,9 @@ A small project containing an example of a page with a feedback/contact form bui
 Check the on here Demo: https://itchief.ru/examples/lab.php?topic=php&file=feedback-form
 
 Screenshots:
-<img src="https://itchief.ru/assets/images/350/1.png" alt="Форма обратной связи" width="300">
-<img src="https://itchief.ru/assets/images/350/2.png" alt="Валидация формы обратной связи" width="300">
-<img src="https://itchief.ru/assets/images/350/3.png" alt="Успешно отправленная форма обратной связи" width="300">
+![Форма обратной связи](https://itchief.ru/assets/images/350/1.png | width=400)
+![Валидация формы обратной связи](https://itchief.ru/assets/images/350/2.png | width=400)
+![Успешно отправленная форма обратной связи](https://itchief.ru/assets/images/350/3.png | width=400)
 
 ## Step-by-step instructions
 1. Add a form to the HTML (it allows us to collect data).
