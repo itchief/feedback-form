@@ -21,7 +21,7 @@ Screenshots:
 ```
 An example of the form is given in "index.html".
 
-### 2. Include files in HTML:
+### 2. Include files in HTML
 ```html
 <link rel="stylesheet" href="css/style.css">
 <script src="/feedback/js/form-processing.js"></script>
@@ -63,3 +63,65 @@ const form = new ItcSubmitForm('form', {
   attachExt: ['jpg', 'jpeg', 'bmp', 'gif', 'png'] // допустимые расширения файлов
 });
 ```
+Here are the values of the keys that they have by default.
+
+### 4. Set values to constants in php script
+
+4.1. Checking the captcha:
+```php
+define('HAS_CHECK_CAPTCHA', true);
+```
+4.2. Attached files:
+```php
+// не пропускать форму, если к ней не прикреплён хотя бы один файл
+define('HAS_ATTACH_REQUIRED', true);
+// разрешённые mime типы файлов
+define('ALLOWED_MIME_TYPES', ['image/jpeg', 'image/gif', 'image/png']);
+// максимальный размер файла
+define('MAX_FILE_SIZE', 512 * 1024);
+```
+
+4.3. Mail settings:
+```php
+// отправлять письмо на указанный адрес email
+define('HAS_SEND_EMAIL', true);
+// добавить файлы в тело письма в виде ссылок (В противном случае прикрепить)
+define('HAS_ATTACH_IN_BODY', false);
+// базовый URL-адрес (используется, если составления полного URL для ссылок, добавляемых в тело письма)
+define('BASE_URL', 'https://domain.com');
+// настройка почты (отправка осуществляется через SMTP)
+define('EMAIL_SETTINGS', [
+  'addresses' => ['manager@domain.com'], // кому необходимо отправить письмо
+  'from' => ['no-reply@domain.com', 'Имя сайта'], // от какого email и имени необходимо отправить письмо
+  'subject' => 'Сообщение с формы обратной связи', // тема письма
+  'host' => 'ssl://smtp.yandex.ru', // SMTP-хост
+  'username' => 'name@yandex.ru', // // SMTP-пользователь
+  'password' => '*********', // SMTP-пароль
+  'port' => '465' // SMTP-порт
+]);
+```
+
+4.4. Notifications to user:
+```php
+// необходимо ли отправлять уведомление пользователю на почту
+define('HAS_SEND_NOTIFICATION', false);
+// тема письма
+define('SUBJECT_FOR_CLIENT', 'Ваше сообщение доставлено');
+```
+
+4.5. Logs:
+```php
+// писать предупреждения и ошибки в лог
+define('HAS_WRITE_LOG', true);
+```
+
+4.6. Saving form in txt:
+```php
+// записывать успешные формы в файл forms.log
+define('HAS_WRITE_TXT', true);
+```
+
+### 5. Copy "feedback" folder to the root directory of site
+
+By default, the "feedback" folder contains the file "index.html". It can be used to test the form.
+On a website with a domain name "domain.com " this form will be available at the following URL: `http://domain.com/feedback/` (or `https://domain.com/feedback/`).
