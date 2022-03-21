@@ -5,10 +5,15 @@ Check the on here Demo: https://itchief.ru/examples/lab.php?topic=php&file=feedb
 
 Screenshots:
 
-![Форма обратной связи](//itchief.ru/assets/images/350/1.png)
-![Валидация формы обратной связи](//itchief.ru/assets/images/350/2.png)
-![Успешно отправленная форма обратной связи](//itchief.ru/assets/images/350/3.png)
+![Форма обратной связи](https://itchief.ru/assets/images/350/1.png)
+![Валидация формы обратной связи](https://itchief.ru/assets/images/350/2.png)
+![Успешно отправленная форма обратной связи](https://itchief.ru/assets/images/350/3.png)
 
 ## Step-by-step instructions for installing
 1. Add a form to the HTML (it allows us to collect data).
 An example of the form is located in "index.html".
+
+```html
+<form id="form" action="/feedback/processing.php" enctype="multipart/form-data" novalidate>
+  ...
+</form>
