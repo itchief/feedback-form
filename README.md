@@ -4,9 +4,9 @@ A small project containing an example of a page with a feedback/contact form bui
 Check the on here Demo: https://itchief.ru/examples/lab.php?topic=php&file=feedback-form
 
 Screenshots:
-!["Форма обратной связи"](https://itchief.ru/assets/images/350/1.png | width=400)
-!["Валидация формы обратной связи"](https://itchief.ru/assets/images/350/2.png | width=400)
-!["Успешно отправленная форма обратной связи"](https://itchief.ru/assets/images/350/3.png | width=400)
+![](https://itchief.ru/assets/images/350/1.png | width=400)
+![](https://itchief.ru/assets/images/350/2.png | width=400)
+![](https://itchief.ru/assets/images/350/3.png | width=400)
 
 ## Step-by-step instructions
 1. Add a form to the HTML (it allows us to collect data).
@@ -37,4 +37,11 @@ The fragment that will be displayed is located in "index.html " after the form. 
 <div class="form-success form-success_hide">
   <div class="form-success__message">Форма успешно отправлена. Нажмите <button type="button" class="form-success__btn">здесь</button>, если нужно отправить ещё одну форму.</div>
 </div>
+```
+When you click on the button `.form-success__btn:`
+```js
+document.querySelector('.form-success__btn').addEventListener('click', (e) => {
+  form.reset();
+  e.target.closest('.form-container').querySelector('.form-success').classList.add('form-success_hide');
+});
 ```
