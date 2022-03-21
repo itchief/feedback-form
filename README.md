@@ -4,9 +4,9 @@ A small project containing an example of a page with a feedback/contact form bui
 Check the on here Demo: https://itchief.ru/examples/lab.php?topic=php&file=feedback-form
 
 Screenshots:
-![](https://itchief.ru/assets/images/350/1.png | width=400)
-![](https://itchief.ru/assets/images/350/2.png | width=400)
-![](https://itchief.ru/assets/images/350/3.png | width=400)
+![](https://itchief.ru/assets/images/350/1.png)
+![](https://itchief.ru/assets/images/350/2.png)
+![](https://itchief.ru/assets/images/350/3.png)
 
 ## Step-by-step instructions
 1. Add a form to the HTML (it allows us to collect data).
