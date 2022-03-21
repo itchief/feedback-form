@@ -4,9 +4,9 @@ A small project containing an example of a page with a feedback/contact form bui
 Check the on here Demo: https://itchief.ru/examples/lab.php?topic=php&file=feedback-form
 
 Screenshots:
-![Форма обратной связи](https://itchief.ru/assets/images/350/1.png | width=400)
-![Валидация формы обратной связи](https://itchief.ru/assets/images/350/2.png | width=400)
-![Успешно отправленная форма обратной связи](https://itchief.ru/assets/images/350/3.png | width=400)
+!["Форма обратной связи"](https://itchief.ru/assets/images/350/1.png | width=400)
+!["Валидация формы обратной связи"](https://itchief.ru/assets/images/350/2.png | width=400)
+!["Успешно отправленная форма обратной связи"](https://itchief.ru/assets/images/350/3.png | width=400)
 
 ## Step-by-step instructions
 1. Add a form to the HTML (it allows us to collect data).
@@ -30,4 +30,11 @@ document.querySelector('form').addEventListener('success', (e) => {
   const el = e.target.closest('.form-container').querySelector('.form-success');
   el.classList.remove('form-success_hide');
 });
-```js
+```
+The success event occurs when we receive a response from the server and result="success".
+The fragment that will be displayed is located in "index.html " after the form. It has the following structure:
+```html
+<div class="form-success form-success_hide">
+  <div class="form-success__message">Форма успешно отправлена. Нажмите <button type="button" class="form-success__btn">здесь</button>, если нужно отправить ещё одну форму.</div>
+</div>
+```
