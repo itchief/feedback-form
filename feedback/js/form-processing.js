@@ -119,13 +119,13 @@ class ItcSubmitForm {
   // при получении успешного ответа от сервера
   _successXHR(data) {
 
-    const elProgress = this._elForm.querySelector('.progress');
+    /*const elProgress = this._elForm.querySelector('.progress');
     if (elProgress) {
       elProgress.classList.add('d-none');
       const elProgressBar = elProgress.querySelector('.progress-bar');
       elProgressBar.setAttribute('aria-valuenow', '0');
       elProgressBar.style.width = '0';
-    }
+    }*/
 
     const elAttach = this._elForm.querySelector('.form-attach');
     if (elAttach) {
@@ -210,7 +210,13 @@ class ItcSubmitForm {
       }
     }
 
+    const submitWidth = this._elForm.querySelector('[type="submit"]').getBoundingClientRect().width;
+    const submitHeight = this._elForm.querySelector('[type="submit"]').getBoundingClientRect().height;
+    this._elForm.querySelector('[type="submit"]').textContent = '';
     this._elForm.querySelector('[type="submit"]').disabled = true;
+    this._elForm.querySelector('[type="submit"]').style.width = `${submitWidth}px`;
+    this._elForm.querySelector('[type="submit"]').style.height = `${submitHeight}px`;
+
     this._elForm.querySelector('.form-error').classList.add('form-error_hide');
 
     var xhr = new XMLHttpRequest();
@@ -218,14 +224,17 @@ class ItcSubmitForm {
     xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
     xhr.responseType = 'json';
     xhr.onload = () => {
+      this._elForm.querySelector('[type="submit"]').textContent = this._submitText;
       this._elForm.querySelector('[type="submit"]').disabled = false;
+      this._elForm.querySelector('[type="submit"]').style.width = '';
+      this._elForm.querySelector('[type="submit"]').style.height = '';
       if (xhr.status == 200) {
         this._successXHR(xhr.response);
       } else {
         this._errorXHR();
       }
     }
-    this._elForm.querySelector('.progress').classList.remove('d-none');
+    /*this._elForm.querySelector('.progress').classList.remove('d-none');
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) {
         const value = ((e.loaded * 100) / e.total).toFixed(1);
@@ -233,7 +242,7 @@ class ItcSubmitForm {
         el.setAttribute('aria-valuenow', value);
         el.style.width = value + '%';
       }
-    }
+    }*/
     xhr.send(this._getFormData());
   };
 
@@ -241,6 +250,7 @@ class ItcSubmitForm {
   _init() {
     const elFormAttachCount = this._elForm.querySelector('.form-attach__count');
     elFormAttachCount ? elFormAttachCount.textContent = this._attach.maxItems : null;
+    this._submitText = this._elForm.querySelector('[type="submit"]').textContent;
     this._addEventListener();
   }
 
@@ -317,10 +327,10 @@ class ItcSubmitForm {
         this._elForm.querySelector('.is-invalid').classList.remove('is-invalid');
       }
     }
-    if (this._elForm.querySelector('.form-progress')) {
+    /*if (this._elForm.querySelector('.form-progress')) {
       const elProgressBar = this._elForm.querySelector('.progress-bar');
       elProgressBar.setAttribute('aria-valuenow', '0');
       elProgressBar.style.width = 0;
-    }
+    }*/
   }
 }

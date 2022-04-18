@@ -599,18 +599,18 @@ textarea.form-control.is-invalid {
 
 /* CSS для кнопки submit */
 button[type="submit"] {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 400;
   color: #fff;
-  text-align: center;
-  vertical-align: middle;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
   background-color: #007bff;
   border: 1px solid #007bff;
-  padding: .375rem .75rem .375rem 2rem;
+  padding: .375rem .75rem;
   font-size: 1rem;
   line-height: 1.5;
   border-radius: .25rem;
@@ -618,31 +618,47 @@ button[type="submit"] {
   position: relative;
 }
 
-button[type="submit"]::before {
+button[type="submit"]:disabled {
+  opacity: 0.65;
+}
+
+button[type="submit"]:not(:disabled)::before {
   content: "";
-  position: absolute;
   width: 1rem;
   height: 1rem;
-  left: .5rem;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-right: .5rem;
   background: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512.333 512'%3E%3Cpath fill='%23fff' d='M476 3.2L12.5 270.6c-18.1 10.4-15.8 35.6 2.2 43.2L121 358.4l287.3-253.2c5.5-4.9 13.3 2.6 8.6 8.3L176 407v80.5c0 23.6 28.5 32.9 42.5 15.8L282 426l124.6 52.2c14.2 6 30.4-2.9 33-18.2l72-432C515 7.8 493.3-6.8 476 3.2z'/%3E%3C/svg%3E") transparent no-repeat center center;
   background-size: 100% 100%;
 }
 
-button[type="submit"]:hover {
+@keyframes spinner-border {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+button[type="submit"]:disabled::before {
+  content: "";
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  vertical-align: -0.125em;
+  border: 0.2em solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  -webkit-animation: .75s linear infinite spinner-border;
+  animation: .75s linear infinite spinner-border;
+}
+
+button[type="submit"]:not(:disabled):hover {
   color: #fff;
   background-color: #0069d9;
   border-color: #0062cc;
 }
 
-button[type="submit"]:focus {
+button[type="submit"]:not(:disabled):focus {
   outline: 0;
   box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.5);
-}
-
-button[type="submit"]:disabled {
-  opacity: 0.65;
 }
 
 /* Стили для сообщения об ошибках */
