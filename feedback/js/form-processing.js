@@ -118,21 +118,11 @@ class ItcSubmitForm {
 
   // при получении успешного ответа от сервера
   _successXHR(data) {
-
-    /*const elProgress = this._elForm.querySelector('.progress');
-    if (elProgress) {
-      elProgress.classList.add('d-none');
-      const elProgressBar = elProgress.querySelector('.progress-bar');
-      elProgressBar.setAttribute('aria-valuenow', '0');
-      elProgressBar.style.width = '0';
-    }*/
-
     const elAttach = this._elForm.querySelector('.form-attach');
     if (elAttach) {
       elAttach.classList.remove('is-invalid');
       elAttach.querySelector('.invalid-feedback').textContent = '';
     }
-
     this._elForm.querySelectorAll('input, textarea').forEach(el => {
       this._setStateValidaion(el);
     });
@@ -193,9 +183,7 @@ class ItcSubmitForm {
 
   // отправка формы
   _onSubmit() {
-
     this._elForm.dispatchEvent(new Event('before-send'));
-
     if (this._isCheckValidationOnClient) {
       if (!this._checkValidity()) {
         const elInvalid = this._elForm.querySelector('.is-invalid');
@@ -234,15 +222,6 @@ class ItcSubmitForm {
         this._errorXHR();
       }
     }
-    /*this._elForm.querySelector('.progress').classList.remove('d-none');
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        const value = ((e.loaded * 100) / e.total).toFixed(1);
-        const el = this._elForm.querySelector('.progress-bar');
-        el.setAttribute('aria-valuenow', value);
-        el.style.width = value + '%';
-      }
-    }*/
     xhr.send(this._getFormData());
   };
 
@@ -327,10 +306,5 @@ class ItcSubmitForm {
         this._elForm.querySelector('.is-invalid').classList.remove('is-invalid');
       }
     }
-    /*if (this._elForm.querySelector('.form-progress')) {
-      const elProgressBar = this._elForm.querySelector('.progress-bar');
-      elProgressBar.setAttribute('aria-valuenow', '0');
-      elProgressBar.style.width = 0;
-    }*/
   }
 }

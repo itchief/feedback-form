@@ -25,7 +25,7 @@ define('HAS_WRITE_LOG', true);
 // проверять ли капчу
 define('HAS_CHECK_CAPTCHA', true);
 // обязательно ли наличие файлов, прикреплённых к форме
-define('HAS_ATTACH_REQUIRED', true);
+define('HAS_ATTACH_REQUIRED', false);
 // разрешённые mime типы файлов
 define('ALLOWED_MIME_TYPES', ['image/jpeg', 'image/gif', 'image/png']);
 // максимально-допустимый размер файла
