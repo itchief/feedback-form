@@ -6,6 +6,9 @@
  */
 
 class ItcSubmitForm {
+
+  static contains = [];
+
   constructor(selector = 'form', config = {}) {
     this._attach = {
       index: 0,
@@ -16,6 +19,7 @@ class ItcSubmitForm {
     };
     this._isCheckValidationOnClient = config['isCheckValidationOnClient'] !== false;
     this._elForm = document.querySelector(selector);
+    this.constructor.contains.push({el: this._elForm, instance: this})
     this._init();
   }
 
@@ -129,7 +133,7 @@ class ItcSubmitForm {
 
     // при успешной отправки формы
     if (data['result'] === 'success') {
-      this._elForm.dispatchEvent(new Event('success'));
+      this._elForm.dispatchEvent(new Event('itc.successSendForm', {bubbles: true}));
       return;
     }
 

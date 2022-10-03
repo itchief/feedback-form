@@ -111,17 +111,19 @@
 
     const form = new ItcSubmitForm('form');
 
-    // при получении ответа result="success" от сервера
-    document.querySelector('form').addEventListener('success', (e) => {
+    document.addEventListener('itc.successSendForm', (e) => {
       const el = e.target.closest('.form-container').querySelector('.form-success');
       el.classList.remove('form-success_hide');
     });
 
     // при клике на .form-success__btn
     document.querySelector('.form-success__btn').addEventListener('click', (e) => {
-      form.reset();
+      const el = e.target.closest('.form-container').querySelector('form');
+      const found = ItcSubmitForm.contains.find((item) => item.el === el);
+      found.instance.reset();
       e.target.closest('.form-container').querySelector('.form-success').classList.add('form-success_hide');
     })
+
   </script>
 
 </body>
