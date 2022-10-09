@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 // имя файла для хранения логов
-define('LOG_FILE', 'logs/' . date('Y-m-d') . '.log');
+define('LOG_FILE', '../logs/' . date('Y-m-d') . '.log');
 // писать предупреждения и ошибки в лог
 const HAS_WRITE_LOG = true;
 // проверять ли капчу
@@ -31,7 +31,7 @@ const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/gif', 'image/png'];
 // максимально-допустимый размер файла
 const MAX_FILE_SIZE = 512 * 1024;
 // директория для хранения файлов
-define('UPLOAD_PATH', dirname(__FILE__) . '/uploads/');
+const UPLOAD_PATH = '../uploads/';
 
 // отправлять письмо
 const HAS_SEND_EMAIL = true;
@@ -110,7 +110,7 @@ if (!empty($_POST['message'])) {
 // проверка капчи
 if (HAS_CHECK_CAPTCHA) {
   session_start();
-  if ($_POST['captcha'] === $_SESSION['captcha']) {
+  if ($_POST['captcha'] === $_SESSION['captcha-1']) {
     $data['form']['captcha'] = $_POST['captcha'];
   } else {
     $data['result'] = 'error';
@@ -174,13 +174,13 @@ use PHPMailer\PHPMailer\PHPMailer;
 //use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
-require 'vendor/phpmailer/phpmailer/src/Exception.php';
-require 'vendor/phpmailer/phpmailer/src/PHPMailer.php';
-require 'vendor/phpmailer/phpmailer/src/SMTP.php';
+require '../vendor/phpmailer/phpmailer/src/Exception.php';
+require '../vendor/phpmailer/phpmailer/src/PHPMailer.php';
+require '../vendor/phpmailer/phpmailer/src/SMTP.php';
 
-if ($data['result'] == 'success' && HAS_SEND_EMAIL == true) {
+if ($data['result'] == 'success' && HAS_SEND_EMAIL) {
   // получаем содержимое email шаблона и заменяем в нём
-  $template = file_get_contents(dirname(__FILE__) . '/template/email.tpl');
+  $template = file_get_contents('../template/email.tpl');
   $search = ['%subject%', '%name%', '%email%', '%message%', '%date%'];
   $replace = [EMAIL_SETTINGS['subject'], $data['form']['name'], $data['form']['email'], $data['form']['message'], date('d.m.Y H:i')];
   $body = str_replace($search, $replace, $template);
@@ -239,7 +239,7 @@ if ($data['result'] == 'success' && HAS_SEND_NOTIFICATION) {
   $mail->clearAllRecipients();
   $mail->clearAttachments();
   // получаем содержимое email шаблона и заменяем в нём плейсхолдеры на соответствующие им значения
-  $template = file_get_contents(dirname(__FILE__) . '/template/email_client.tpl');
+  $template = file_get_contents('../template/email_client.tpl');
   $search = ['%subject%', '%name%', '%date%'];
   $replace = [SUBJECT_FOR_CLIENT, $data['form']['name'], date('d.m.Y H:i')];
   $body = str_replace($search, $replace, $template);
@@ -267,7 +267,7 @@ if ($data['result'] == 'success' && HAS_WRITE_TXT) {
     }
   }
   $output = '=====================';
-  error_log($output, 3, 'logs/forms.log');
+  error_log($output, 3, '../logs/forms.log');
 }
 
 echo json_encode($data);

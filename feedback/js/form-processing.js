@@ -7,9 +7,20 @@
 
 class ItcSubmitForm {
 
-  static contains = [];
+  static instances = [];
 
-  constructor(selector = 'form', config = {}) {
+  static getOrCreateInstance(target, config) {
+    const elForm = typeof target === 'string' ? document.querySelector(target) : target;
+    const found = this.instances.find(el => el.target === elForm);
+    if (found) {
+      return found.instance;
+    }
+    const form = new this(elForm, config);
+    this.instances.push({target: elForm, instance: form});
+    return this;
+  }
+
+  constructor(target, config = {}) {
     this._attach = {
       index: 0,
       maxItems: config['attachMaxItems'] || 5,
@@ -18,8 +29,7 @@ class ItcSubmitForm {
       items: []
     };
     this._isCheckValidationOnClient = config['isCheckValidationOnClient'] !== false;
-    this._elForm = document.querySelector(selector);
-    this.constructor.contains.push({el: this._elForm, instance: this})
+    this._elForm = target;
     this._init();
   }
 
@@ -100,7 +110,7 @@ class ItcSubmitForm {
       if (item.file.size > this._attach.maxFileSize * 1024) {
         this._setStateValidaion(elAttach, 'error', `Размер файла больше ${this._attach.maxFileSize}Кб`);
         valid = false;
-      } else if (!ItcSubmitForm._checkExt(item.file.name, this._attach.ext)) {
+      } else if (!this.constructor._checkExt(item.file.name, this._attach.ext)) {
         this._setStateValidaion(elAttach, 'error', 'Тип не является допустимым');
         valid = false;
       } else {
@@ -283,10 +293,10 @@ class ItcSubmitForm {
           const reader = new FileReader();
           reader.readAsDataURL(file);
           reader.addEventListener('load', (e) => {
-            this._elForm.querySelector('.form-attach__items').innerHTML += ItcSubmitForm._getAttachTemplate(index, file, e.target);
+            this._elForm.querySelector('.form-attach__items').innerHTML += this.constructor._getAttachTemplate(index, file, e.target);
           });
         } else {
-          this._elForm.querySelector('.form-attach__items').innerHTML += ItcSubmitForm._getAttachTemplate(index, file);
+          this._elForm.querySelector('.form-attach__items').innerHTML += this.constructor._getAttachTemplate(index, file);
         }
       }
       target.value = '';

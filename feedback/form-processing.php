@@ -21,23 +21,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 // имя файла для хранения логов
 define('LOG_FILE', 'logs/' . date('Y-m-d') . '.log');
 // писать предупреждения и ошибки в лог
-define('HAS_WRITE_LOG', true);
+const HAS_WRITE_LOG = true;
 // проверять ли капчу
-define('HAS_CHECK_CAPTCHA', true);
+const HAS_CHECK_CAPTCHA = true;
 // обязательно ли наличие файлов, прикреплённых к форме
-define('HAS_ATTACH_REQUIRED', false);
+const HAS_ATTACH_REQUIRED = false;
 // разрешённые mime типы файлов
-define('ALLOWED_MIME_TYPES', ['image/jpeg', 'image/gif', 'image/png']);
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/gif', 'image/png'];
 // максимально-допустимый размер файла
-define('MAX_FILE_SIZE', 512 * 1024);
+const MAX_FILE_SIZE = 512 * 1024;
 // директория для хранения файлов
 define('UPLOAD_PATH', dirname(__FILE__) . '/uploads/');
 
 // отправлять письмо
-define('HAS_SEND_EMAIL', true);
+const HAS_SEND_EMAIL = true;
 // добавить ли прикреплённые файлы в тело письма в виде ссылок
-define('HAS_ATTACH_IN_BODY', true);
-define('EMAIL_SETTINGS', [
+const HAS_ATTACH_IN_BODY = true;
+const EMAIL_SETTINGS = [
   'addresses' => ['manager@domain.com'], // кому необходимо отправить письмо
   'from' => ['no-reply@domain.com', 'Имя сайта'], // от какого email и имени необходимо отправить письмо
   'subject' => 'Сообщение с формы обратной связи', // тема письма
@@ -45,12 +45,12 @@ define('EMAIL_SETTINGS', [
   'username' => 'name@yandex.ru', // // SMTP-пользователь
   'password' => '*********', // SMTP-пароль
   'port' => '465' // SMTP-порт
-]);
-define('HAS_SEND_NOTIFICATION', false);
-define('BASE_URL', 'https://domain.com');
-define('SUBJECT_FOR_CLIENT', 'Ваше сообщение доставлено');
+];
+const HAS_SEND_NOTIFICATION = false;
+const BASE_URL = 'https://domain.com';
+const SUBJECT_FOR_CLIENT = 'Ваше сообщение доставлено';
 //
-define('HAS_WRITE_TXT', true);
+const HAS_WRITE_TXT = true;
 
 function itc_log($message)
 {
@@ -115,7 +115,7 @@ if (HAS_CHECK_CAPTCHA) {
   } else {
     $data['result'] = 'error';
     $data['errors']['captcha'] = 'Код не соответствует изображению.';
-    itc_log('Не пройдена капча. Указанный код ' . $captcha . ' не соответствует ' . $_SESSION['captcha']);
+    itc_log('Не пройдена капча. Указанный код ' . $_POST['captcha'] . ' не соответствует ' . $_SESSION['captcha']);
   }
 }
 

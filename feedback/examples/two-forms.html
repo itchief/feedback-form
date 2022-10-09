@@ -1,10 +1,224 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
+
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+  <meta charset="utf-8">
+  <title>Форма обратной связи</title>
+  <link rel="stylesheet" href="/feedback/css/style.css">
 </head>
+
 <body>
-$END$
+
+<div class="container">
+  <h1>Форма обратной связи</h1>
+
+  <div class="form-container form__wrapper">
+    <!-- Форма обратной связи -->
+    <form id="form-1" action="/feedback/examples/form-processing-1.php" enctype="multipart/form-data" novalidate>
+      <div class="form-row">
+        <!-- Имя пользователя -->
+        <div class="form-group">
+          <label for="form-1-name" class="control-label">Имя</label>
+          <input id="form-1-name" type="text" name="name" class="form-control" value="" placeholder="Имя" minlength="2"
+                 maxlength="30" required="required">
+          <div class="invalid-feedback"></div>
+        </div>
+        <!-- Email пользователя -->
+        <div class="form-group">
+          <label for="form-1-email" class="control-label">Email-адрес</label>
+          <input id="form-1-email" type="email" name="email" required="required" class="form-control" value=""
+                 placeholder="Email-адрес">
+          <div class="invalid-feedback"></div>
+        </div>
+      </div>
+      <!-- Сообщение пользователя -->
+      <div class="form-group">
+        <label for="form-1-message" class="control-label">Сообщение (не менее 20 символов)</label>
+        <textarea id="form-1-message" name="message" class="form-control" rows="3"
+                  placeholder="Сообщение (не менее 20 символов)" minlength="20" maxlength="500"
+                  required="required"></textarea>
+        <div class="invalid-feedback"></div>
+      </div>
+
+      <!-- Файлы, для прикрепления к форме -->
+      <div class="form-group form-attach" data-count="5">
+        <div class="form-attach__label">Файлы (не более <span class="form-attach__count">5</span>)</div>
+        <div class="form-attach__wrapper">
+          <input type="file" name="attach[]" multiple required>
+          <div class="form-attach__description">
+            <div>Нажмите для загрузки файлов или перетащите их</div>
+            <div class="text-sm">PNG, JPG, GIF (до 512 Кбайт)</div>
+          </div>
+          <div class="form-attach__items"></div>
+        </div>
+        <div class="invalid-feedback"></div>
+      </div>
+
+      <!-- Капча -->
+      <div class="form-group form-captcha">
+        <img class="form-captcha__image" src="/feedback/captcha/captcha.php?id=captcha-1" data-src="/feedback/captcha/captcha.php?id=captcha-1"
+             width="132" height="46" alt="Капча">
+        <div class="form-captcha__refresh">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16" height="16">
+            <path fill="currentColor"
+                  d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z">
+            </path>
+          </svg>
+        </div>
+        <div class="form-group form-captcha__input">
+          <label for="form-1-captcha" class="control-label d-none">Код, показанный на изображении</label>
+          <input type="text" name="captcha" maxlength="6" required="required" id="form-1-captcha"
+                 class="form-control captcha" placeholder="******" autocomplete="off" value="">
+          <div class="invalid-feedback"></div>
+        </div>
+      </div>
+
+      <!-- Пользовательское солашение -->
+      <div class="form-group form-agree form-check">
+        <input class="form-check-input" type="checkbox" name="agree" id="form-1-agree" required value="true">
+        <label class="form-check-label" for="form-1-agree">Нажимая кнопку, я принимаю условия <a href="#">Пользовательского
+          соглашения</a> и даю своё согласие на обработку моих персональных данных</label>
+        <div class="invalid-feedback"></div>
+      </div>
+
+      <!-- Сообщение об ошибке -->
+      <div class="form-error form-error_hide">Исправьте данные и отправьте форму ещё раз.</div>
+
+      <!-- Кнопка для отправки формы на сервер -->
+      <div class="form-submit">
+        <button type="submit">Отправить сообщение</button>
+      </div>
+    </form>
+
+    <!-- Сообщение об успешной отправки формы -->
+    <div class="form-success form-success_hide">
+      <div class="form-success__message">
+        Форма успешно отправлена.
+        Нажмите <button type="button" class="form-success__btn">здесь</button>, если нужно отправить ещё одну форму.
+      </div>
+    </div>
+  </div>
+
+  <div class="form-container form__wrapper">
+    <!-- Форма обратной связи -->
+    <form id="form-2" action="/feedback/examples/form-processing-2.php" enctype="multipart/form-data" novalidate>
+      <div class="form-row">
+        <!-- Имя пользователя -->
+        <div class="form-group">
+          <label for="form-2-name" class="control-label">Имя</label>
+          <input id="form-2-name" type="text" name="name" class="form-control" value="" placeholder="Имя" minlength="2"
+                 maxlength="30" required="required">
+          <div class="invalid-feedback"></div>
+        </div>
+        <!-- Email пользователя -->
+        <div class="form-group">
+          <label for="form-2-email" class="control-label">Email-адрес</label>
+          <input id="form-2-email" type="email" name="email" required="required" class="form-control" value=""
+                 placeholder="Email-адрес">
+          <div class="invalid-feedback"></div>
+        </div>
+      </div>
+      <!-- Сообщение пользователя -->
+      <div class="form-group">
+        <label for="form-2-message" class="control-label">Сообщение (не менее 20 символов)</label>
+        <textarea id="form-2-message" name="message" class="form-control" rows="3"
+                  placeholder="Сообщение (не менее 20 символов)" minlength="20" maxlength="500"
+                  required="required"></textarea>
+        <div class="invalid-feedback"></div>
+      </div>
+
+      <!-- Файлы, для прикрепления к форме -->
+      <div class="form-group form-attach" data-count="5">
+        <div class="form-attach__label">Файлы (не более <span class="form-attach__count">5</span>)</div>
+        <div class="form-attach__wrapper">
+          <input type="file" name="attach[]" multiple required>
+          <div class="form-attach__description">
+            <div>Нажмите для загрузки файлов или перетащите их</div>
+            <div class="text-sm">PNG, JPG, GIF (до 512 Кбайт)</div>
+          </div>
+          <div class="form-attach__items"></div>
+        </div>
+        <div class="invalid-feedback"></div>
+      </div>
+
+      <!-- Капча -->
+      <div class="form-group form-captcha">
+        <img class="form-captcha__image" src="/feedback/captcha/captcha.php?id=captcha-2" data-src="/feedback/captcha/captcha.php?id=captcha-2"
+             width="132" height="46" alt="Капча">
+        <div class="form-captcha__refresh">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16" height="16">
+            <path fill="currentColor"
+                  d="M440.65 12.57l4 82.77A247.16 247.16 0 0 0 255.83 8C134.73 8 33.91 94.92 12.29 209.82A12 12 0 0 0 24.09 224h49.05a12 12 0 0 0 11.67-9.26 175.91 175.91 0 0 1 317-56.94l-101.46-4.86a12 12 0 0 0-12.57 12v47.41a12 12 0 0 0 12 12H500a12 12 0 0 0 12-12V12a12 12 0 0 0-12-12h-47.37a12 12 0 0 0-11.98 12.57zM255.83 432a175.61 175.61 0 0 1-146-77.8l101.8 4.87a12 12 0 0 0 12.57-12v-47.4a12 12 0 0 0-12-12H12a12 12 0 0 0-12 12V500a12 12 0 0 0 12 12h47.35a12 12 0 0 0 12-12.6l-4.15-82.57A247.17 247.17 0 0 0 255.83 504c121.11 0 221.93-86.92 243.55-201.82a12 12 0 0 0-11.8-14.18h-49.05a12 12 0 0 0-11.67 9.26A175.86 175.86 0 0 1 255.83 432z">
+            </path>
+          </svg>
+        </div>
+        <div class="form-group form-captcha__input">
+          <label for="form-2-captcha" class="control-label d-none">Код, показанный на изображении</label>
+          <input type="text" name="captcha" maxlength="6" required="required" id="form-2-captcha"
+                 class="form-control captcha" placeholder="******" autocomplete="off" value="">
+          <div class="invalid-feedback"></div>
+        </div>
+      </div>
+
+      <!-- Пользовательское солашение -->
+      <div class="form-group form-agree form-check">
+        <input class="form-check-input" type="checkbox" name="agree" id="form-2-agree" required value="true">
+        <label class="form-check-label" for="form-2-agree">Нажимая кнопку, я принимаю условия <a href="#">Пользовательского
+          соглашения</a> и даю своё согласие на обработку моих персональных данных</label>
+        <div class="invalid-feedback"></div>
+      </div>
+
+      <!-- Сообщение об ошибке -->
+      <div class="form-error form-error_hide">Исправьте данные и отправьте форму ещё раз.</div>
+
+      <!-- Кнопка для отправки формы на сервер -->
+      <div class="form-submit">
+        <button type="submit">Отправить сообщение</button>
+      </div>
+    </form>
+
+    <!-- Сообщение об успешной отправки формы -->
+    <div class="form-success form-success_hide">
+      <div class="form-success__message">
+        Форма успешно отправлена.
+        Нажмите <button type="button" class="form-success__btn">здесь</button>, если нужно отправить ещё одну форму.
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<script src="/feedback/js/form-processing.js"></script>
+<script>
+  /*
+    attachMaxItems: 3,
+    attachMaxFileSize: 128,
+    attachExt: ['png', 'jpg']
+  */
+
+  document.querySelectorAll('form').forEach((el) => {
+    ItcSubmitForm.getOrCreateInstance(el);
+  })
+
+  document.addEventListener('itc.successSendForm', (e) => {
+    const el = e.target.closest('.form-container').querySelector('.form-success');
+    el.classList.remove('form-success_hide');
+  });
+
+  // при клике на .form-success__btn
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.form-success__btn')) {
+      return;
+    }
+    const el = e.target.closest('.form-container').querySelector('form');
+    const form = ItcSubmitForm.getOrCreateInstance(el);
+    form.reset();
+    e.target.closest('.form-container').querySelector('.form-success').classList.add('form-success_hide');
+  });
+
+</script>
+
 </body>
+
 </html>
