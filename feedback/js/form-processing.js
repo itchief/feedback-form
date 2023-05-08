@@ -147,7 +147,16 @@ class ItcSubmitForm {
       return;
     }
 
-    this._elForm.querySelector('.form-error').classList.remove('form-error_hidden');
+    this._elForm.querySelector('.form-error').classList.add('form-error_hide');
+    // this._elForm.querySelector('.form-error').classList.remove('form-error_hidden');
+
+    if (!Object.keys(data['errors']).length) {
+      this._elForm.querySelector('.form-error').textContent = 'При отправке сообщения произошла ошибка. Пожалуйста, попробуйте ещё раз позже.';
+    } else {
+      this._elForm.querySelector('.form-error').textContent = 'В форме содержатся ошибки!';
+    }
+
+    this._elForm.querySelector('.form-error').classList.remove('form-error_hide');
 
     // выводим ошибки
     for (let key in data['errors']) {

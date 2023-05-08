@@ -2,7 +2,7 @@
 
 /*
  * Форма обратной связи (https://itchief.ru/lessons/php/feedback-form-for-website)
- * Copyright 2016-2022 Alexander Maltsev
+ * Copyright 2016-2023 Alexander Maltsev
  * Licensed under MIT (https://github.com/itchief/feedback-form/blob/master/LICENSE)
  */
 
@@ -171,7 +171,7 @@ if (empty($_FILES['attach'])) {
 }
 
 use PHPMailer\PHPMailer\PHPMailer;
-//use PHPMailer\PHPMailer\SMTP;
+use PHPMailer\PHPMailer\SMTP;
 use PHPMailer\PHPMailer\Exception;
 
 require 'vendor/phpmailer/phpmailer/src/Exception.php';
@@ -199,7 +199,12 @@ if ($data['result'] == 'success' && HAS_SEND_EMAIL == true) {
   } else {
     $body = str_replace('%attachs%', '', $body);
   }
-  $mail = new PHPMailer();
+  $mail = new PHPMailer(true);
+  $mail->SMTPDebug = 2;
+  $mail->Debugoutput = function($str, $level) {
+    $file = __DIR__ . '/logs/smtp_' . date('Y-m-d') . '.log';
+    file_put_contents($file, gmdate('Y-m-d H:i:s'). "\t$level\t$str\n", FILE_APPEND | LOCK_EX);
+  };
   try {
     //Server settings
     $mail->isSMTP();
