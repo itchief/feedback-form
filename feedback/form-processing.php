@@ -27,7 +27,18 @@ const HAS_CHECK_CAPTCHA = true;
 // обязательно ли наличие файлов, прикреплённых к форме
 const HAS_ATTACH_REQUIRED = false;
 // разрешённые mime типы файлов
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/gif', 'image/png'];
+const ALLOWED_MIME_TYPES = [
+    'image/jpeg',
+    'image/gif',
+    'image/png',
+    'application/zip',          // ZIP
+    'application/x-rar',        // RAR (старый)
+    'application/vnd.rar',      // RAR (новый)
+    'application/octet-stream', // Иногда RAR и DWG могут попадать в эту категорию
+    'image/vnd.dwg',            // DWG
+    'application/dxf',          // DXF
+    'image/vnd.dxf',            // DXF (иногда)
+];
 // максимально-допустимый размер файла
 const MAX_FILE_SIZE = 512 * 1024;
 // директория для хранения файлов
@@ -140,11 +151,17 @@ if (empty($_FILES['attach'])) {
     if ($error == UPLOAD_ERR_OK) {
       $name = basename($_FILES['attach']['name'][$key]);
       $size = $_FILES['attach']['size'][$key];
-      $mtype = mime_content_type($_FILES['attach']['tmp_name'][$key]);
-      if (!in_array($mtype, ALLOWED_MIME_TYPES)) {
+      $tmpPath = $_FILES['attach']['tmp_name'][$key];
+
+      // Определяем MIME-тип файла через finfo
+      $finfo = finfo_open(FILEINFO_MIME_TYPE);
+      $mtype = finfo_file($finfo, $tmpPath);
+      finfo_close($finfo);
+
+      if (!in_array($mtype, ALLOWED_MIME_TYPES, true)) {
         $data['result'] = 'error';
         $data['errors']['attach'][$key] = 'Файл имеет не разрешённый тип.';
-        itc_log('Прикреплённый файл ' . $name . ' имеет не разрешённый тип.');
+        itc_log('Прикреплённый файл ' . $name . ' имеет не разрешённый тип (' . $mtype . ').');
       } else if ($size > MAX_FILE_SIZE) {
         $data['result'] = 'error';
         $data['errors']['attach'][$key] = 'Размер файла превышает допустимый.';
@@ -159,6 +176,7 @@ if (empty($_FILES['attach'])) {
       $name = basename($_FILES['attach']['name'][$key], $ext);
       $tmp = $_FILES['attach']['tmp_name'][$key];
       $newName = rtrim($name, '.') . '_' . uniqid() . '.' . $ext;
+
       if (!move_uploaded_file($tmp, UPLOAD_PATH . $newName)) {
         $data['result'] = 'error';
         $data['errors']['attach'][$key] = 'Ошибка при загрузке файла.';
